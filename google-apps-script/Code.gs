@@ -37,11 +37,19 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  var params = e.parameter;
-  var action = params.action;
+  var params;
   var result;
 
   try {
+    // Support both form-encoded (e.parameter) and JSON body (text/plain)
+    if (e.postData && e.postData.type === 'text/plain') {
+      params = JSON.parse(e.postData.contents);
+    } else {
+      params = e.parameter;
+    }
+
+    var action = params.action;
+
     if (action === 'uploadFile') {
       result = uploadFile(params);
     } else {

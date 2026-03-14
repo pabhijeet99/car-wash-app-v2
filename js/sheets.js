@@ -5,7 +5,7 @@
 // =============================================
 
 // =============================================
-// 👉 DEVELOPER: Paste your Master Script URL here
+// DEVELOPER: Paste your Master Script URL here
 //    (Deploy Code.gs ONCE — all clients use this)
 // =============================================
 const MASTER_URL = 'https://script.google.com/macros/s/AKfycbyWsuIzMawwA9Ajn3Yt1RVfmOm-bkXdUR_uJ1JLXn2Ku9hBG9GVKso7Sbu8ZlHHPnRk/exec';
@@ -25,20 +25,86 @@ const SHEETS = {
     localStorage.setItem('cw_sheet_id', id);
   },
 
-  // ---- REGISTER: Auto-creates Google Sheet for new client ----
-  async register(profile) {
+  // Helper: Call Google Apps Script (handles redirects + CORS)
+  async _callScript(params) {
     const url = this.getMasterUrl();
     if (!url || url === 'YOUR_MASTER_SCRIPT_URL_HERE') {
-      throw new Error('Master script URL not configured. See SETUP.md.');
+      throw new Error('Master script URL not configured.');
     }
 
+    try {
+      const fullUrl = url + '?' + params.toString();
+      const res = await fetch(fullUrl, {
+        method: 'GET',
+        redirect: 'follow'
+      });
+
+      const text = await res.text();
+
+      // Try to parse JSON directly
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        // Google Apps Script sometimes wraps JSON in HTML after redirect
+        var match = text.match(/\{[\s\S]*\}/);
+        if (match) return JSON.parse(match[0]);
+        console.error('Non-JSON response:', text.substring(0, 200));
+        throw new Error('Server returned invalid response');
+      }
+    } catch (err) {
+      if (err.message === 'Failed to fetch' || err.message.includes('NetworkError')) {
+        throw new Error(
+          'Cannot connect to server. Check:\n' +
+          '1. Your internet connection\n' +
+          '2. Apps Script deployed with "Who has access: Anyone"\n' +
+          '3. Try re-deploying as a NEW deployment'
+        );
+      }
+      throw err;
+    }
+  },
+
+  // Helper: POST to Google Apps Script (for file uploads)
+  async _postScript(bodyParams) {
+    const url = this.getMasterUrl();
+    if (!url || url === 'YOUR_MASTER_SCRIPT_URL_HERE') {
+      throw new Error('App not configured.');
+    }
+
+    try {
+      // Use text/plain to avoid CORS preflight with Apps Script
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(bodyParams),
+        redirect: 'follow'
+      });
+
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        var match = text.match(/\{[\s\S]*\}/);
+        if (match) return JSON.parse(match[0]);
+        console.error('Non-JSON POST response:', text.substring(0, 200));
+        throw new Error('Server returned invalid response');
+      }
+    } catch (err) {
+      if (err.message === 'Failed to fetch' || err.message.includes('NetworkError')) {
+        throw new Error('Upload failed - cannot connect to server');
+      }
+      throw err;
+    }
+  },
+
+  // ---- REGISTER: Auto-creates Google Sheet for new client ----
+  async register(profile) {
     const params = new URLSearchParams({
       action:           'register',
       businessName:     profile.businessName    || '',
       ownerName:        profile.ownerName       || '',
       email:            profile.email           || '',
       phone:            profile.phone           || '',
-      // Onboarding fields
       aadhaar:          profile.aadhaar         || '',
       pan:              profile.pan             || '',
       dl:               profile.dl              || '',
@@ -57,49 +123,31 @@ const SHEETS = {
       agreementDate:    profile.agreementDate   || ''
     });
 
-    const res  = await fetch(url + '?' + params.toString());
-    const data = await res.json();
+    const data = await this._callScript(params);
 
     if (!data.success) throw new Error(data.error || 'Registration failed');
 
-    // Save the new Sheet ID for all future operations
     this.saveSheetId(data.sheetId);
-
-    return data; // { success, sheetId, sheetUrl, message }
+    return data;
   },
 
   // ---- UPLOAD DOCUMENT: Upload a file (base64) to Google Drive via Apps Script ----
   async uploadDocument(sheetId, docType, fileName, base64Data) {
-    const url = this.getMasterUrl();
-    if (!url || url === 'YOUR_MASTER_SCRIPT_URL_HERE') {
-      throw new Error('App not configured.');
-    }
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action:   'uploadFile',
-        sheetId:  sheetId,
-        docType:  docType,
-        fileName: fileName,
-        fileData: base64Data
-      }).toString()
+    const data = await this._postScript({
+      action:   'uploadFile',
+      sheetId:  sheetId,
+      docType:  docType,
+      fileName: fileName,
+      fileData: base64Data
     });
 
-    const data = await res.json();
     if (!data.success) throw new Error(data.error || 'Upload failed');
     return data;
   },
 
   // ---- ADD a new visit record ----
   async addRecord(record) {
-    const url     = this.getMasterUrl();
     const sheetId = this.getSheetId();
-
-    if (!url || url === 'YOUR_MASTER_SCRIPT_URL_HERE') {
-      throw new Error('App not configured. Please contact support.');
-    }
     if (!sheetId) {
       throw new Error('No sheet linked. Please re-register the app.');
     }
@@ -117,8 +165,7 @@ const SHEETS = {
       notes:         record.notes         || ''
     });
 
-    const res  = await fetch(url + '?' + params.toString());
-    const data = await res.json();
+    const data = await this._callScript(params);
 
     if (!data.success) throw new Error(data.error || 'Failed to save record');
     return data;
@@ -126,12 +173,7 @@ const SHEETS = {
 
   // ---- SEARCH records ----
   async search(query, type) {
-    const url     = this.getMasterUrl();
     const sheetId = this.getSheetId();
-
-    if (!url || url === 'YOUR_MASTER_SCRIPT_URL_HERE') {
-      throw new Error('App not configured. Please contact support.');
-    }
     if (!sheetId) {
       throw new Error('No sheet linked. Please re-register the app.');
     }
@@ -143,8 +185,7 @@ const SHEETS = {
       type
     });
 
-    const res  = await fetch(url + '?' + params.toString());
-    const data = await res.json();
+    const data = await this._callScript(params);
 
     if (data.error) throw new Error(data.error);
     return Array.isArray(data) ? data : [];
