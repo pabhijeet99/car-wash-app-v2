@@ -8,7 +8,7 @@
 // 👉 DEVELOPER: Paste your Master Script URL here
 //    (Deploy Code.gs ONCE — all clients use this)
 // =============================================
-const MASTER_URL = 'https://script.google.com/macros/s/AKfycbzBEv95yIFn78lz8LE8VHzt9LAGg5uZNcANyaaAKFsO8zHbInkUeHDHv-4Y_5fcq78F/exec';
+const MASTER_URL = 'https://script.google.com/macros/s/AKfycbyWsuIzMawwA9Ajn3Yt1RVfmOm-bkXdUR_uJ1JLXn2Ku9hBG9GVKso7Sbu8ZlHHPnRk/exec';
 
 // =============================================
 const SHEETS = {
