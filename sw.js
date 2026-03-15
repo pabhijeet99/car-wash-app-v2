@@ -1,39 +1,65 @@
-// Car Wash Manager - Service Worker
+// Car Wash Manager - Service Worker (no external dependencies)
 
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
+const CACHE_NAME = 'carwash-v2';
+const APP_ASSETS = [
+  './',
+  './index.html',
+  './css/style.css',
+  './js/app.js',
+  './js/auth.js',
+  './js/sheets.js',
+  './manifest.json',
+  './icons/icon.svg'
+];
 
-const CACHE = "carwash-cache-v1";
-const offlineFallbackPage = "index.html";
-
-self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
-});
-
-self.addEventListener('install', async (event) => {
+// Install — cache all core app files
+self.addEventListener('install', function(event) {
   event.waitUntil(
-    caches.open(CACHE)
-      .then((cache) => cache.add(offlineFallbackPage))
+    caches.open(CACHE_NAME).then(function(cache) {
+      return cache.addAll(APP_ASSETS);
+    })
   );
+  self.skipWaiting();
 });
 
-if (workbox.navigationPreload.isSupported()) {
-  workbox.navigationPreload.enable();
-}
+// Activate — clear old caches
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(
+        keys.filter(function(key) { return key !== CACHE_NAME; })
+            .map(function(key) { return caches.delete(key); })
+      );
+    })
+  );
+  self.clients.claim();
+});
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith((async () => {
-      try {
-        const preloadResp = await event.preloadResponse;
-        if (preloadResp) return preloadResp;
-        return await fetch(event.request);
-      } catch (error) {
-        const cache = await caches.open(CACHE);
-        const cachedResp = await cache.match(offlineFallbackPage);
-        return cachedResp;
-      }
-    })());
+// Fetch — network first for API calls, cache first for app assets
+self.addEventListener('fetch', function(event) {
+  var url = event.request.url;
+
+  // Never cache Google Apps Script API calls
+  if (url.indexOf('script.google.com') !== -1) {
+    return;
   }
+
+  // For navigation and app assets: try network first, fall back to cache
+  event.respondWith(
+    fetch(event.request).then(function(response) {
+      // Cache successful responses
+      if (response.ok) {
+        var clone = response.clone();
+        caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(event.request, clone);
+        });
+      }
+      return response;
+    }).catch(function() {
+      // Network failed — serve from cache (offline support)
+      return caches.match(event.request).then(function(cached) {
+        return cached || caches.match('./index.html');
+      });
+    })
+  );
 });
