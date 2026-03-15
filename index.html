@@ -7,10 +7,10 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="CarWash" />
+  <meta name="apple-mobile-web-app-title" content="Garage" />
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
   <link rel="apple-touch-icon" href="icons/icon.svg" />
-  <title>Car Wash Manager</title>
+  <title>Garage Manager</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -21,8 +21,6 @@
      ================================================ -->
 <div id="screen-setup" hidden>
   <div class="auth-card">
-
-    <!-- Progress Indicator -->
     <div class="setup-progress" id="setup-progress">
       <div class="progress-step active" data-step="1"><span>1</span><small>Business</small></div>
       <div class="progress-line"></div>
@@ -41,316 +39,121 @@
       <div class="progress-step" data-step="8"><span>8</span><small>PIN</small></div>
     </div>
 
-    <!-- Step 1: Business Info -->
+    <!-- Step 1-8: Same as before (setup wizard) -->
     <div class="setup-step" id="setup-step-1">
-      <div class="auth-logo">🚗💧</div>
+      <div class="auth-logo">🔧🚗</div>
       <h2 class="auth-title">Welcome!</h2>
-      <p class="auth-subtitle">Let's set up your car wash app</p>
+      <p class="auth-subtitle">Let's set up your garage management app</p>
       <form id="setup-form-1">
-        <div class="form-group">
-          <label>Business Name <span class="required">*</span></label>
-          <input type="text" id="s-business" placeholder="e.g. Rahul Car Wash" required />
-        </div>
-        <div class="form-group">
-          <label>Owner Name <span class="required">*</span></label>
-          <input type="text" id="s-owner" placeholder="Your full name" required />
-        </div>
-        <div class="form-group">
-          <label>Mobile Number</label>
-          <input type="tel" id="s-phone" placeholder="10-digit number" maxlength="10" />
-        </div>
-        <button type="submit" class="btn-primary">Next →</button>
+        <div class="form-group"><label>Business Name <span class="required">*</span></label><input type="text" id="s-business" placeholder="e.g. Rahul Auto Service" required /></div>
+        <div class="form-group"><label>Owner Name <span class="required">*</span></label><input type="text" id="s-owner" placeholder="Your full name" required /></div>
+        <div class="form-group"><label>Mobile Number</label><input type="tel" id="s-phone" placeholder="10-digit number" maxlength="10" /></div>
+        <button type="submit" class="btn-primary">Next &rarr;</button>
       </form>
     </div>
 
-    <!-- Step 2: Email for Sheet sharing -->
     <div class="setup-step" id="setup-step-2" hidden>
       <div class="auth-logo">📧</div>
       <h2 class="auth-title">Your Email</h2>
-      <p class="auth-subtitle">We'll create your Google Sheet and share it to your email automatically</p>
+      <p class="auth-subtitle">We'll create your Google Sheet and share it to your email</p>
       <form id="setup-form-2">
-        <div class="form-group">
-          <label>Gmail Address <span class="required">*</span></label>
-          <input type="email" id="s-email" placeholder="yourname@gmail.com" required />
-        </div>
-        <p class="auth-note" style="text-align:left; margin-bottom:10px">
-          ✅ A <strong>Google Sheet</strong> named "Car Wash Records" will be
-          automatically created and shared to this email.<br/><br/>
-          📱 You can view all your data anytime at <strong>sheets.google.com</strong>
-        </p>
-        <div style="display:flex; gap:10px">
-          <button type="button" class="btn-secondary" onclick="goSetupStep(1)">← Back</button>
-          <button type="submit" class="btn-primary" style="margin-top:0">Next →</button>
-        </div>
+        <div class="form-group"><label>Gmail Address <span class="required">*</span></label><input type="email" id="s-email" placeholder="yourname@gmail.com" required /></div>
+        <p class="auth-note" style="text-align:left;margin-bottom:10px">A <strong>Google Sheet</strong> will be created and shared to this email.</p>
+        <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(1)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
       </form>
     </div>
 
-    <!-- Step 3: Identity Proof -->
     <div class="setup-step" id="setup-step-3" hidden>
       <div class="auth-logo">🪪</div>
       <h2 class="auth-title">Identity Proof</h2>
-      <p class="auth-subtitle">Provide your Aadhaar and PAN details for verification</p>
+      <p class="auth-subtitle">Aadhaar and PAN details for verification</p>
       <form id="setup-form-3">
         <div class="form-section-title">Aadhaar Card <span class="required">*</span></div>
-        <div class="form-group">
-          <label>Aadhaar Number <span class="required">*</span></label>
-          <input type="text" id="s-aadhaar" placeholder="12-digit Aadhaar number" maxlength="12" inputmode="numeric" required />
-        </div>
-        <div class="form-group">
-          <label>Aadhaar Photo <span class="required">*</span></label>
-          <div class="file-upload-area" id="upload-aadhaar" onclick="document.getElementById('file-aadhaar').click()">
-            <input type="file" id="file-aadhaar" accept="image/*" capture="environment" hidden />
-            <div class="upload-placeholder" id="preview-aadhaar">
-              <span class="upload-icon">📷</span>
-              <span>Tap to capture or upload Aadhaar photo</span>
-            </div>
-          </div>
-        </div>
-
+        <div class="form-group"><label>Aadhaar Number <span class="required">*</span></label><input type="text" id="s-aadhaar" placeholder="12-digit number" maxlength="12" inputmode="numeric" required /></div>
+        <div class="form-group"><label>Aadhaar Photo <span class="required">*</span></label><div class="file-upload-area" id="upload-aadhaar" onclick="document.getElementById('file-aadhaar').click()"><input type="file" id="file-aadhaar" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-aadhaar"><span class="upload-icon">📷</span><span>Tap to upload Aadhaar</span></div></div></div>
         <div class="form-section-title">PAN Card <span class="required">*</span></div>
-        <div class="form-group">
-          <label>PAN Number <span class="required">*</span></label>
-          <input type="text" id="s-pan" placeholder="e.g. ABCDE1234F" maxlength="10" class="uppercase" required />
-        </div>
-        <div class="form-group">
-          <label>PAN Photo <span class="required">*</span></label>
-          <div class="file-upload-area" id="upload-pan" onclick="document.getElementById('file-pan').click()">
-            <input type="file" id="file-pan" accept="image/*" capture="environment" hidden />
-            <div class="upload-placeholder" id="preview-pan">
-              <span class="upload-icon">📷</span>
-              <span>Tap to capture or upload PAN photo</span>
-            </div>
-          </div>
-        </div>
-
+        <div class="form-group"><label>PAN Number <span class="required">*</span></label><input type="text" id="s-pan" placeholder="e.g. ABCDE1234F" maxlength="10" class="uppercase" required /></div>
+        <div class="form-group"><label>PAN Photo <span class="required">*</span></label><div class="file-upload-area" id="upload-pan" onclick="document.getElementById('file-pan').click()"><input type="file" id="file-pan" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-pan"><span class="upload-icon">📷</span><span>Tap to upload PAN</span></div></div></div>
         <div class="form-section-title">Driving License (Optional)</div>
-        <div class="form-group">
-          <label>DL Number</label>
-          <input type="text" id="s-dl" placeholder="Driving License number (optional)" />
-        </div>
-
-        <div style="display:flex; gap:10px">
-          <button type="button" class="btn-secondary" onclick="goSetupStep(2)">← Back</button>
-          <button type="submit" class="btn-primary" style="margin-top:0">Next →</button>
-        </div>
+        <div class="form-group"><label>DL Number</label><input type="text" id="s-dl" placeholder="Optional" /></div>
+        <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(2)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
       </form>
     </div>
 
-    <!-- Step 4: Business Proof -->
     <div class="setup-step" id="setup-step-4" hidden>
       <div class="auth-logo">🏢</div>
       <h2 class="auth-title">Business Proof</h2>
-      <p class="auth-subtitle">Provide GST or other business registration details</p>
+      <p class="auth-subtitle">GST or business registration details</p>
       <form id="setup-form-4">
-        <div class="form-section-title">GST Certificate (if available)</div>
-        <div class="form-group">
-          <label>GST Number</label>
-          <input type="text" id="s-gst" placeholder="e.g. 22AAAAA0000A1Z5" maxlength="15" class="uppercase" />
-        </div>
-        <div class="form-group">
-          <label>GST Certificate Photo</label>
-          <div class="file-upload-area" onclick="document.getElementById('file-gst').click()">
-            <input type="file" id="file-gst" accept="image/*" capture="environment" hidden />
-            <div class="upload-placeholder" id="preview-gst">
-              <span class="upload-icon">📷</span>
-              <span>Tap to upload GST certificate (optional)</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section-title">Other Business License (Optional)</div>
-        <div class="form-group">
-          <label>License Type</label>
-          <select id="s-license-type">
-            <option value="">-- None --</option>
-            <option value="shop_establishment">Shop & Establishment License</option>
-            <option value="msme">MSME Certificate</option>
-            <option value="trade_license">Trade License (Municipality)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>License Number</label>
-          <input type="text" id="s-license-number" placeholder="License/Certificate number" />
-        </div>
-
-        <div style="display:flex; gap:10px">
-          <button type="button" class="btn-secondary" onclick="goSetupStep(3)">← Back</button>
-          <button type="submit" class="btn-primary" style="margin-top:0">Next →</button>
-        </div>
+        <div class="form-group"><label>GST Number</label><input type="text" id="s-gst" placeholder="e.g. 22AAAAA0000A1Z5" maxlength="15" class="uppercase" /></div>
+        <div class="form-group"><label>GST Certificate Photo</label><div class="file-upload-area" onclick="document.getElementById('file-gst').click()"><input type="file" id="file-gst" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-gst"><span class="upload-icon">📷</span><span>Upload GST certificate (optional)</span></div></div></div>
+        <div class="form-group"><label>License Type</label><select id="s-license-type"><option value="">-- None --</option><option value="shop_establishment">Shop & Establishment</option><option value="msme">MSME Certificate</option><option value="trade_license">Trade License</option></select></div>
+        <div class="form-group"><label>License Number</label><input type="text" id="s-license-number" placeholder="Optional" /></div>
+        <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(3)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
       </form>
     </div>
 
-    <!-- Step 5: Bank Details -->
     <div class="setup-step" id="setup-step-5" hidden>
       <div class="auth-logo">🏦</div>
       <h2 class="auth-title">Bank Details</h2>
-      <p class="auth-subtitle">Required for payouts and settlements</p>
+      <p class="auth-subtitle">For payouts and settlements</p>
       <form id="setup-form-5">
-        <div class="form-group">
-          <label>Account Holder Name <span class="required">*</span></label>
-          <input type="text" id="s-acc-holder" placeholder="Name as per bank account" required />
-        </div>
-        <div class="form-group">
-          <label>Bank Name <span class="required">*</span></label>
-          <input type="text" id="s-bank-name" placeholder="e.g. State Bank of India" required />
-        </div>
-        <div class="form-group">
-          <label>Account Number <span class="required">*</span></label>
-          <input type="text" id="s-acc-number" placeholder="9-18 digit account number" maxlength="18" inputmode="numeric" required />
-        </div>
-        <div class="form-group">
-          <label>Confirm Account Number <span class="required">*</span></label>
-          <input type="text" id="s-acc-number-confirm" placeholder="Re-enter account number" maxlength="18" inputmode="numeric" required />
-        </div>
-        <div class="form-group">
-          <label>IFSC Code <span class="required">*</span></label>
-          <input type="text" id="s-ifsc" placeholder="e.g. SBIN0001234" maxlength="11" class="uppercase" required />
-        </div>
-        <div class="form-group">
-          <label>Cancelled Cheque Photo <span class="required">*</span></label>
-          <div class="file-upload-area" onclick="document.getElementById('file-cheque').click()">
-            <input type="file" id="file-cheque" accept="image/*" capture="environment" hidden />
-            <div class="upload-placeholder" id="preview-cheque">
-              <span class="upload-icon">📷</span>
-              <span>Tap to upload cancelled cheque photo</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex; gap:10px">
-          <button type="button" class="btn-secondary" onclick="goSetupStep(4)">← Back</button>
-          <button type="submit" class="btn-primary" style="margin-top:0">Next →</button>
-        </div>
+        <div class="form-group"><label>Account Holder <span class="required">*</span></label><input type="text" id="s-acc-holder" placeholder="Name as per bank" required /></div>
+        <div class="form-group"><label>Bank Name <span class="required">*</span></label><input type="text" id="s-bank-name" placeholder="e.g. State Bank of India" required /></div>
+        <div class="form-group"><label>Account Number <span class="required">*</span></label><input type="text" id="s-acc-number" placeholder="9-18 digits" maxlength="18" inputmode="numeric" required /></div>
+        <div class="form-group"><label>Confirm Account Number <span class="required">*</span></label><input type="text" id="s-acc-number-confirm" placeholder="Re-enter" maxlength="18" inputmode="numeric" required /></div>
+        <div class="form-group"><label>IFSC Code <span class="required">*</span></label><input type="text" id="s-ifsc" placeholder="e.g. SBIN0001234" maxlength="11" class="uppercase" required /></div>
+        <div class="form-group"><label>Cancelled Cheque Photo <span class="required">*</span></label><div class="file-upload-area" onclick="document.getElementById('file-cheque').click()"><input type="file" id="file-cheque" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-cheque"><span class="upload-icon">📷</span><span>Upload cancelled cheque</span></div></div></div>
+        <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(4)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
       </form>
     </div>
 
-    <!-- Step 6: Garage Details -->
     <div class="setup-step" id="setup-step-6" hidden>
       <div class="auth-logo">🔧</div>
       <h2 class="auth-title">Garage Details</h2>
-      <p class="auth-subtitle">Tell us about your garage/car wash location</p>
+      <p class="auth-subtitle">About your garage/service location</p>
       <form id="setup-form-6">
-        <div class="form-group">
-          <label>Garage Name <span class="required">*</span></label>
-          <input type="text" id="s-garage-name" placeholder="e.g. Rahul Auto Spa" required />
-        </div>
-        <div class="form-group">
-          <label>Full Address <span class="required">*</span></label>
-          <textarea id="s-garage-address" placeholder="Street, Area, City, State, PIN code" rows="3" required></textarea>
-        </div>
-        <div class="form-group">
-          <label>Contact Number <span class="required">*</span></label>
-          <input type="tel" id="s-garage-phone" placeholder="10-digit number" maxlength="10" required />
-        </div>
-        <div class="form-group">
-          <label>Garage Photos <span class="required">*</span> <small>(1-5 photos)</small></label>
-          <div class="file-upload-area" onclick="document.getElementById('file-garage').click()">
-            <input type="file" id="file-garage" accept="image/*" capture="environment" multiple hidden />
-            <div class="upload-placeholder" id="preview-garage">
-              <span class="upload-icon">📷</span>
-              <span>Tap to upload garage photos (min 1)</span>
-            </div>
-          </div>
-          <div class="photo-thumbnails" id="garage-thumbnails"></div>
-        </div>
-
-        <div class="form-section-title">Mechanic Experience (Optional)</div>
-        <div class="form-group">
-          <label>Years of Experience</label>
-          <input type="number" id="s-experience" placeholder="e.g. 5" min="0" max="50" />
-        </div>
-
-        <div style="display:flex; gap:10px">
-          <button type="button" class="btn-secondary" onclick="goSetupStep(5)">← Back</button>
-          <button type="submit" class="btn-primary" style="margin-top:0">Next →</button>
-        </div>
+        <div class="form-group"><label>Garage Name <span class="required">*</span></label><input type="text" id="s-garage-name" placeholder="e.g. Rahul Auto Spa" required /></div>
+        <div class="form-group"><label>Full Address <span class="required">*</span></label><textarea id="s-garage-address" placeholder="Street, Area, City, PIN" rows="3" required></textarea></div>
+        <div class="form-group"><label>Contact Number <span class="required">*</span></label><input type="tel" id="s-garage-phone" placeholder="10-digit" maxlength="10" required /></div>
+        <div class="form-group"><label>Garage Photos <span class="required">*</span> <small>(1-5)</small></label><div class="file-upload-area" onclick="document.getElementById('file-garage').click()"><input type="file" id="file-garage" accept="image/*" capture="environment" multiple hidden /><div class="upload-placeholder" id="preview-garage"><span class="upload-icon">📷</span><span>Upload garage photos</span></div></div><div class="photo-thumbnails" id="garage-thumbnails"></div></div>
+        <div class="form-group"><label>Years of Experience</label><input type="number" id="s-experience" placeholder="e.g. 5" min="0" max="50" /></div>
+        <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(5)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
       </form>
     </div>
 
-    <!-- Step 7: Vendor Agreement -->
     <div class="setup-step" id="setup-step-7" hidden>
       <div class="auth-logo">📋</div>
       <h2 class="auth-title">Vendor Agreement</h2>
-      <p class="auth-subtitle">Please review and accept the service agreement</p>
+      <p class="auth-subtitle">Review and accept the service agreement</p>
       <form id="setup-form-7">
-        <div class="agreement-box">
-          <h4>Service Vendor Agreement</h4>
-          <div class="agreement-text">
-            <p><strong>1. Commission & Payments</strong><br/>
-            The platform shall deduct a commission percentage (as mutually agreed) from each completed service transaction. Payments will be settled on a weekly/monthly cycle as per the agreed payment schedule.</p>
-
-            <p><strong>2. Service Quality</strong><br/>
-            The vendor is responsible for maintaining high service quality standards. All services must be performed professionally using appropriate equipment and materials. Customer complaints will be investigated and may result in penalties.</p>
-
-            <p><strong>3. Dispute Resolution</strong><br/>
-            Any disputes arising from services shall first be attempted to be resolved through mutual discussion. If unresolved, disputes will be escalated to arbitration as per applicable laws.</p>
-
-            <p><strong>4. Platform Rules</strong><br/>
-            The vendor agrees to abide by all platform rules, including but not limited to: timely service delivery, accurate pricing, proper documentation, and respectful customer interaction.</p>
-
-            <p><strong>5. Termination</strong><br/>
-            Either party may terminate this agreement with 30 days written notice. The platform reserves the right to immediately terminate in case of fraud, misconduct, or repeated service quality failures.</p>
-
-            <p><strong>6. Data & Privacy</strong><br/>
-            All customer and business data collected through the platform will be handled in accordance with applicable data protection laws. The vendor shall not misuse any customer data obtained through the platform.</p>
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-top:16px">
-          <label class="checkbox-label">
-            <input type="checkbox" id="s-agreement-check" required />
-            <span>I have read and agree to the Vendor Agreement terms <span class="required">*</span></span>
-          </label>
-        </div>
-
-        <div class="form-group">
-          <label>Upload Signed Agreement (Optional)</label>
-          <div class="file-upload-area" onclick="document.getElementById('file-agreement').click()">
-            <input type="file" id="file-agreement" accept="image/*,.pdf" capture="environment" hidden />
-            <div class="upload-placeholder" id="preview-agreement">
-              <span class="upload-icon">📄</span>
-              <span>Tap to upload signed agreement copy (optional)</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex; gap:10px">
-          <button type="button" class="btn-secondary" onclick="goSetupStep(6)">← Back</button>
-          <button type="submit" class="btn-primary" style="margin-top:0">Next →</button>
-        </div>
+        <div class="agreement-box"><h4>Service Vendor Agreement</h4><div class="agreement-text">
+          <p><strong>1. Commission & Payments</strong><br/>Platform deducts commission from each transaction. Settlements on agreed schedule.</p>
+          <p><strong>2. Service Quality</strong><br/>Vendor maintains high standards. Complaints may result in penalties.</p>
+          <p><strong>3. Dispute Resolution</strong><br/>Disputes resolved through discussion, then arbitration.</p>
+          <p><strong>4. Platform Rules</strong><br/>Vendor abides by all rules: timely delivery, accurate pricing, proper documentation.</p>
+          <p><strong>5. Termination</strong><br/>Either party may terminate with 30 days notice.</p>
+          <p><strong>6. Data & Privacy</strong><br/>All data handled per applicable data protection laws.</p>
+        </div></div>
+        <div class="form-group" style="margin-top:16px"><label class="checkbox-label"><input type="checkbox" id="s-agreement-check" required /><span>I agree to the Vendor Agreement <span class="required">*</span></span></label></div>
+        <div class="form-group"><label>Upload Signed Agreement (Optional)</label><div class="file-upload-area" onclick="document.getElementById('file-agreement').click()"><input type="file" id="file-agreement" accept="image/*,.pdf" capture="environment" hidden /><div class="upload-placeholder" id="preview-agreement"><span class="upload-icon">📄</span><span>Upload signed agreement (optional)</span></div></div></div>
+        <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(6)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
       </form>
     </div>
 
-    <!-- Step 8: Set PIN -->
     <div class="setup-step" id="setup-step-8" hidden>
       <div class="auth-logo">🔐</div>
       <h2 class="auth-title">Set Your PIN</h2>
       <p class="auth-subtitle">Create a 4-digit PIN to protect your app</p>
-
-      <div class="pin-dots" id="setup-dots">
-        <span class="dot" id="sd0"></span>
-        <span class="dot" id="sd1"></span>
-        <span class="dot" id="sd2"></span>
-        <span class="dot" id="sd3"></span>
-      </div>
+      <div class="pin-dots" id="setup-dots"><span class="dot" id="sd0"></span><span class="dot" id="sd1"></span><span class="dot" id="sd2"></span><span class="dot" id="sd3"></span></div>
       <p class="pin-hint" id="setup-pin-hint">Enter a 4-digit PIN</p>
-
       <div class="pin-keypad">
-        <button class="key-btn" onclick="PINUI.press('setup','1')">1</button>
-        <button class="key-btn" onclick="PINUI.press('setup','2')">2</button>
-        <button class="key-btn" onclick="PINUI.press('setup','3')">3</button>
-        <button class="key-btn" onclick="PINUI.press('setup','4')">4</button>
-        <button class="key-btn" onclick="PINUI.press('setup','5')">5</button>
-        <button class="key-btn" onclick="PINUI.press('setup','6')">6</button>
-        <button class="key-btn" onclick="PINUI.press('setup','7')">7</button>
-        <button class="key-btn" onclick="PINUI.press('setup','8')">8</button>
-        <button class="key-btn" onclick="PINUI.press('setup','9')">9</button>
-        <button class="key-btn key-empty"></button>
-        <button class="key-btn" onclick="PINUI.press('setup','0')">0</button>
-        <button class="key-btn key-del" onclick="PINUI.del('setup')">⌫</button>
+        <button class="key-btn" onclick="PINUI.press('setup','1')">1</button><button class="key-btn" onclick="PINUI.press('setup','2')">2</button><button class="key-btn" onclick="PINUI.press('setup','3')">3</button>
+        <button class="key-btn" onclick="PINUI.press('setup','4')">4</button><button class="key-btn" onclick="PINUI.press('setup','5')">5</button><button class="key-btn" onclick="PINUI.press('setup','6')">6</button>
+        <button class="key-btn" onclick="PINUI.press('setup','7')">7</button><button class="key-btn" onclick="PINUI.press('setup','8')">8</button><button class="key-btn" onclick="PINUI.press('setup','9')">9</button>
+        <button class="key-btn key-empty"></button><button class="key-btn" onclick="PINUI.press('setup','0')">0</button><button class="key-btn key-del" onclick="PINUI.del('setup')">&#9003;</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -359,31 +162,16 @@
      ================================================ -->
 <div id="screen-login" hidden>
   <div class="pin-screen">
-    <div class="pin-logo">🚗💧</div>
-    <div class="pin-biz-name" id="pin-biz-name">Car Wash Manager</div>
+    <div class="pin-logo">🔧🚗</div>
+    <div class="pin-biz-name" id="pin-biz-name">Garage Manager</div>
     <p class="pin-subtitle">Enter your PIN</p>
-
-    <div class="pin-dots" id="login-dots">
-      <span class="dot" id="ld0"></span>
-      <span class="dot" id="ld1"></span>
-      <span class="dot" id="ld2"></span>
-      <span class="dot" id="ld3"></span>
-    </div>
+    <div class="pin-dots" id="login-dots"><span class="dot" id="ld0"></span><span class="dot" id="ld1"></span><span class="dot" id="ld2"></span><span class="dot" id="ld3"></span></div>
     <p class="pin-error" id="login-pin-error"></p>
-
     <div class="pin-keypad">
-      <button class="key-btn" onclick="PINUI.press('login','1')">1</button>
-      <button class="key-btn" onclick="PINUI.press('login','2')">2</button>
-      <button class="key-btn" onclick="PINUI.press('login','3')">3</button>
-      <button class="key-btn" onclick="PINUI.press('login','4')">4</button>
-      <button class="key-btn" onclick="PINUI.press('login','5')">5</button>
-      <button class="key-btn" onclick="PINUI.press('login','6')">6</button>
-      <button class="key-btn" onclick="PINUI.press('login','7')">7</button>
-      <button class="key-btn" onclick="PINUI.press('login','8')">8</button>
-      <button class="key-btn" onclick="PINUI.press('login','9')">9</button>
-      <button class="key-btn key-empty"></button>
-      <button class="key-btn" onclick="PINUI.press('login','0')">0</button>
-      <button class="key-btn key-del" onclick="PINUI.del('login')">⌫</button>
+      <button class="key-btn" onclick="PINUI.press('login','1')">1</button><button class="key-btn" onclick="PINUI.press('login','2')">2</button><button class="key-btn" onclick="PINUI.press('login','3')">3</button>
+      <button class="key-btn" onclick="PINUI.press('login','4')">4</button><button class="key-btn" onclick="PINUI.press('login','5')">5</button><button class="key-btn" onclick="PINUI.press('login','6')">6</button>
+      <button class="key-btn" onclick="PINUI.press('login','7')">7</button><button class="key-btn" onclick="PINUI.press('login','8')">8</button><button class="key-btn" onclick="PINUI.press('login','9')">9</button>
+      <button class="key-btn key-empty"></button><button class="key-btn" onclick="PINUI.press('login','0')">0</button><button class="key-btn key-del" onclick="PINUI.del('login')">&#9003;</button>
     </div>
   </div>
 </div>
@@ -392,192 +180,363 @@
      MAIN APP
      ================================================ -->
 <div id="app" hidden>
-
-  <!-- HEADER -->
   <header class="app-header">
     <button class="back-btn" id="back-btn" onclick="goBack()">&#8592;</button>
-    <div class="header-center">
-      <span id="header-text">Car Wash Manager</span>
-    </div>
+    <div class="header-center"><span id="header-text">Garage Manager</span></div>
     <div class="header-right">
       <button class="logout-btn" onclick="AUTH.logout()" title="Lock App">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </button>
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
   <main class="app-main">
 
-    <!-- HOME -->
+    <!-- HOME / DASHBOARD -->
     <section id="page-home" class="page active">
       <div class="hero-section">
-        <div class="hero-logo">🚗💧</div>
-        <h2 class="hero-title" id="business-name-display">Car Wash Manager</h2>
+        <div class="hero-logo">🔧🚗</div>
+        <h2 class="hero-title" id="business-name-display">Garage Manager</h2>
         <p class="hero-subtitle" id="user-greeting">Welcome!</p>
       </div>
+      <div class="dashboard-stats" id="dashboard-stats">
+        <div class="stat-card"><div class="stat-number" id="stat-today">-</div><div class="stat-label">Today's Jobs</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat-open">-</div><div class="stat-label">Active Jobs</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat-pending">-</div><div class="stat-label">Pending Delivery</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat-revenue">-</div><div class="stat-label">Today's Revenue</div></div>
+      </div>
       <div class="action-grid">
-        <button class="action-card" onclick="showPage('new-entry','New Entry')">
+        <button class="action-card" onclick="showPage('new-job','New Job Card')">
           <div class="action-icon new-entry-icon">➕</div>
-          <div class="action-label">New Entry</div>
-          <div class="action-desc">Record a customer visit</div>
+          <div class="action-label">New Job</div>
+          <div class="action-desc">Create job card</div>
         </button>
-        <button class="action-card" onclick="showPage('search','Search Customer')">
+        <button class="action-card" onclick="showPage('search','Search')">
           <div class="action-icon search-icon">🔍</div>
           <div class="action-label">Search</div>
-          <div class="action-desc">View customer history</div>
+          <div class="action-desc">Find records</div>
         </button>
       </div>
-      <!-- Info strip -->
       <div class="info-strip">
-        <span>⚙️</span>
-        <span id="strip-info">Car Wash Manager</span>
+        <span>⚙️</span><span id="strip-info">Garage Manager</span>
         <button class="strip-settings" onclick="showPage('settings','Settings')">Settings</button>
       </div>
     </section>
 
-    <!-- NEW ENTRY -->
-    <section id="page-new-entry" class="page">
-      <form id="entry-form" autocomplete="off">
-        <div class="form-section-title">Customer Info</div>
+    <!-- NEW JOB CARD WIZARD -->
+    <section id="page-new-job" class="page">
+      <div class="wizard-progress" id="wizard-progress">
+        <div class="wprog-step active" data-wstep="1"><span>1</span><small>Customer</small></div>
+        <div class="wprog-line"></div>
+        <div class="wprog-step" data-wstep="2"><span>2</span><small>Job Info</small></div>
+        <div class="wprog-line"></div>
+        <div class="wprog-step" data-wstep="3"><span>3</span><small>Complaints</small></div>
+        <div class="wprog-line"></div>
+        <div class="wprog-step" data-wstep="4"><span>4</span><small>Inspect</small></div>
+        <div class="wprog-line"></div>
+        <div class="wprog-step" data-wstep="5"><span>5</span><small>Review</small></div>
+      </div>
+
+      <!-- Wizard Step 1: Customer & Vehicle -->
+      <div class="wiz-step" id="wiz-step-1">
+        <div class="form-section-title">Customer Lookup</div>
         <div class="form-group">
-          <label>Customer Name <span class="required">*</span></label>
-          <input type="text" id="customerName" placeholder="e.g. Rajesh Kumar" required />
+          <label>Mobile Number <span class="required">*</span></label>
+          <div class="search-input-row">
+            <input type="tel" id="jc-phone" placeholder="10-digit mobile" maxlength="10" class="search-input" />
+            <button type="button" class="search-btn" onclick="JOB.lookupCustomer()">🔍</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Phone Number <span class="required">*</span></label>
-          <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10" required />
+        <div id="customer-lookup-result"></div>
+
+        <div id="customer-fields">
+          <div class="form-section-title">Customer Details</div>
+          <div class="form-group"><label>Customer Name <span class="required">*</span></label><input type="text" id="jc-name" placeholder="Full name" required /></div>
+          <div class="form-group"><label>Alternate Phone</label><input type="tel" id="jc-alt-phone" placeholder="Optional" maxlength="10" /></div>
+          <div class="form-group"><label>Email</label><input type="email" id="jc-email" placeholder="Optional" /></div>
+          <div class="form-group"><label>Address</label><input type="text" id="jc-address" placeholder="Street address" /></div>
+          <div class="form-group"><label>City / Area</label><input type="text" id="jc-city" placeholder="City" /></div>
         </div>
-        <div class="form-section-title">Vehicle Info</div>
-        <div class="form-group">
-          <label>Vehicle Number <span class="required">*</span></label>
-          <input type="text" id="vehicleNumber" placeholder="e.g. KA01AB1234" class="uppercase" required />
+
+        <div id="vehicle-selection" style="display:none"></div>
+
+        <div id="vehicle-fields">
+          <div class="form-section-title">Vehicle Details</div>
+          <div class="form-group"><label>Vehicle Number <span class="required">*</span></label><input type="text" id="jc-veh-number" placeholder="e.g. KA01AB1234" class="uppercase" required /></div>
+          <div class="form-row">
+            <div class="form-group half"><label>Brand <span class="required">*</span></label><input type="text" id="jc-veh-brand" placeholder="e.g. Maruti" required /></div>
+            <div class="form-group half"><label>Model <span class="required">*</span></label><input type="text" id="jc-veh-model" placeholder="e.g. Swift" required /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half"><label>Variant</label><input type="text" id="jc-veh-variant" placeholder="e.g. ZXi" /></div>
+            <div class="form-group half"><label>Color</label><input type="text" id="jc-veh-color" placeholder="e.g. White" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half"><label>Fuel Type</label><select id="jc-veh-fuel"><option value="Petrol">Petrol</option><option value="Diesel">Diesel</option><option value="CNG">CNG</option><option value="EV">Electric</option></select></div>
+            <div class="form-group half"><label>Year</label><input type="number" id="jc-veh-year" placeholder="2022" min="1990" max="2030" /></div>
+          </div>
+          <div class="form-group"><label>Current Odometer (km)</label><input type="number" id="jc-veh-odo" placeholder="e.g. 45000" /></div>
+          <div class="form-group"><label>Engine Number <small>(optional)</small></label><input type="text" id="jc-veh-engine" placeholder="Optional" /></div>
+          <div class="form-group"><label>Chassis Number <small>(optional)</small></label><input type="text" id="jc-veh-chassis" placeholder="Optional" /></div>
         </div>
-        <div class="form-group">
-          <label>Vehicle Model</label>
-          <input type="text" id="vehicleModel" placeholder="e.g. Maruti Swift" />
+
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button type="button" class="btn-secondary" onclick="goBack()">&larr; Cancel</button>
+          <button type="button" class="btn-primary" style="margin-top:0" onclick="JOB.goStep(2)">Next &rarr;</button>
         </div>
-        <div class="form-section-title">Service Info</div>
-        <div class="form-group">
-          <label>Service Type <span class="required">*</span></label>
-          <select id="serviceType" required>
-            <option value="">-- Select Service --</option>
-            <option>Exterior Wash</option>
-            <option>Interior Wash</option>
-            <option>Full Wash (Interior + Exterior)</option>
-            <option>Foam Wash</option>
-            <option>Pressure Wash</option>
-            <option>Waxing &amp; Polish</option>
-            <option>Vacuum Cleaning</option>
-            <option>Full Detailing</option>
-            <option>Engine Wash</option>
-            <option>Other</option>
+      </div>
+
+      <!-- Wizard Step 2: Job Details -->
+      <div class="wiz-step" id="wiz-step-2" hidden>
+        <div class="form-section-title">Job Card Details</div>
+        <div class="form-group"><label>Service Type <span class="required">*</span></label>
+          <select id="jc-service-type" required>
+            <option value="General Service">General Service</option>
+            <option value="Repair">Repair</option>
+            <option value="Inspection">Inspection</option>
+            <option value="Emergency">Emergency</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Amount (₹) <span class="required">*</span></label>
-          <input type="number" id="amount" placeholder="e.g. 300" min="0" required />
+        <div class="form-group"><label>Service Advisor</label><input type="text" id="jc-advisor" placeholder="Staff name" /></div>
+        <div class="form-group"><label>Priority Level</label>
+          <div class="priority-cards">
+            <label class="priority-card"><input type="radio" name="jc-priority" value="Low" /><span class="priority-label p-low">Low</span></label>
+            <label class="priority-card"><input type="radio" name="jc-priority" value="Medium" checked /><span class="priority-label p-medium">Medium</span></label>
+            <label class="priority-card"><input type="radio" name="jc-priority" value="High" /><span class="priority-label p-high">High</span></label>
+            <label class="priority-card"><input type="radio" name="jc-priority" value="Urgent" /><span class="priority-label p-urgent">Urgent</span></label>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Staff Name</label>
-          <input type="text" id="staffName" placeholder="Who serviced this vehicle" />
+        <div class="form-group"><label>Estimated Delivery Date</label><input type="date" id="jc-est-delivery" /></div>
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button type="button" class="btn-secondary" onclick="JOB.goStep(1)">&larr; Back</button>
+          <button type="button" class="btn-primary" style="margin-top:0" onclick="JOB.goStep(3)">Next &rarr;</button>
         </div>
-        <div class="form-group">
-          <label>Notes / Remarks</label>
-          <textarea id="notes" placeholder="Any special notes..." rows="3"></textarea>
+      </div>
+
+      <!-- Wizard Step 3: Complaints -->
+      <div class="wiz-step" id="wiz-step-3" hidden>
+        <div class="form-section-title">Customer Complaints</div>
+        <div class="form-group"><label>Complaint Type <small>(select all that apply)</small></label>
+          <div class="complaint-chips">
+            <label class="chip-label"><input type="checkbox" value="Engine noise" /><span class="chip">Engine noise</span></label>
+            <label class="chip-label"><input type="checkbox" value="Brake issue" /><span class="chip">Brake issue</span></label>
+            <label class="chip-label"><input type="checkbox" value="AC not cooling" /><span class="chip">AC not cooling</span></label>
+            <label class="chip-label"><input type="checkbox" value="Oil leak" /><span class="chip">Oil leak</span></label>
+            <label class="chip-label"><input type="checkbox" value="Battery issue" /><span class="chip">Battery issue</span></label>
+            <label class="chip-label"><input type="checkbox" value="General servicing" /><span class="chip">General servicing</span></label>
+            <label class="chip-label"><input type="checkbox" value="Suspension" /><span class="chip">Suspension</span></label>
+            <label class="chip-label"><input type="checkbox" value="Electrical" /><span class="chip">Electrical</span></label>
+          </div>
         </div>
-        <button type="submit" class="btn-primary" id="submit-btn">
-          <span id="submit-text">💾 Save Entry</span>
-        </button>
-      </form>
+        <div class="form-group"><label>Complaint Description</label><textarea id="jc-complaint-text" placeholder="Describe the issue in detail..." rows="3"></textarea></div>
+        <div class="form-group"><label>Customer Notes</label><textarea id="jc-customer-notes" placeholder="Any special requests..." rows="2"></textarea></div>
+        <div class="form-group"><label>Photos <small>(optional)</small></label>
+          <div class="file-upload-area" onclick="document.getElementById('jc-complaint-photos').click()">
+            <input type="file" id="jc-complaint-photos" accept="image/*" capture="environment" multiple hidden />
+            <div class="upload-placeholder" id="preview-complaint-photos"><span class="upload-icon">📷</span><span>Capture damage photos</span></div>
+          </div>
+          <div class="photo-thumbnails" id="complaint-thumbnails"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button type="button" class="btn-secondary" onclick="JOB.goStep(2)">&larr; Back</button>
+          <button type="button" class="btn-primary" style="margin-top:0" onclick="JOB.goStep(4)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Wizard Step 4: Inspection -->
+      <div class="wiz-step" id="wiz-step-4" hidden>
+        <div class="form-section-title">Vehicle Inspection <small>(Optional)</small></div>
+        <p class="auth-subtitle" style="margin-bottom:14px">Check each item and mark its condition</p>
+        <div class="inspection-grid" id="inspection-grid"></div>
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button type="button" class="btn-secondary" onclick="JOB.goStep(3)">&larr; Back</button>
+          <button type="button" class="btn-primary" style="margin-top:0" onclick="JOB.goStep(5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Wizard Step 5: Review & Save -->
+      <div class="wiz-step" id="wiz-step-5" hidden>
+        <div class="form-section-title">Review Job Card</div>
+        <div id="job-review-summary"></div>
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button type="button" class="btn-secondary" onclick="JOB.goStep(4)">&larr; Back</button>
+          <button type="button" class="btn-primary" style="margin-top:0;background:linear-gradient(135deg,#43A047,#2E7D32)" onclick="JOB.saveJobCard()">&#10003; Create Job Card</button>
+        </div>
+      </div>
     </section>
 
     <!-- SEARCH -->
     <section id="page-search" class="page">
       <div class="search-container">
         <div class="search-toggle">
-          <button class="toggle-btn active" id="toggle-phone" onclick="setSearchType('phone',this)">📱 By Phone</button>
-          <button class="toggle-btn" id="toggle-vehicle" onclick="setSearchType('vehicle',this)">🚗 By Vehicle</button>
+          <button class="toggle-btn active" onclick="setSearchType('phone',this)">📱 Phone</button>
+          <button class="toggle-btn" onclick="setSearchType('vehicle',this)">🚗 Vehicle</button>
+          <button class="toggle-btn" onclick="setSearchType('jobcard',this)">📋 Job Card</button>
         </div>
         <div class="search-input-row">
-          <input type="tel" id="searchQuery" class="search-input" placeholder="Enter phone number..." maxlength="10" />
+          <input type="tel" id="searchQuery" class="search-input" placeholder="Enter phone number..." maxlength="15" />
           <button class="search-btn" onclick="doSearch()">🔍</button>
         </div>
       </div>
       <div id="search-results"></div>
     </section>
 
+    <!-- JOB CARDS LIST -->
+    <section id="page-job-list" class="page">
+      <div class="search-container" style="margin-bottom:12px">
+        <div class="search-toggle" id="job-status-filter">
+          <button class="toggle-btn active" onclick="JOBLIST.filter('all',this)">All</button>
+          <button class="toggle-btn" onclick="JOBLIST.filter('open',this)">Open</button>
+          <button class="toggle-btn" onclick="JOBLIST.filter('inprogress',this)">In Progress</button>
+          <button class="toggle-btn" onclick="JOBLIST.filter('completed',this)">Done</button>
+        </div>
+      </div>
+      <div id="job-list-content"></div>
+    </section>
+
+    <!-- JOB CARD DETAIL -->
+    <section id="page-job-detail" class="page">
+      <div id="job-detail-content"></div>
+    </section>
+
+    <!-- WORK PERFORMED (from job detail) -->
+    <section id="page-work" class="page">
+      <div class="form-section-title">Add Work Performed</div>
+      <div class="form-group"><label>Task Name <span class="required">*</span></label><input type="text" id="work-task" placeholder="e.g. Oil Change" required /></div>
+      <div class="form-group"><label>Technician <span class="required">*</span></label><input type="text" id="work-tech" placeholder="Technician name" required /></div>
+      <div class="form-group"><label>Time Taken (mins)</label><input type="number" id="work-time" placeholder="e.g. 30" /></div>
+      <div class="form-group"><label>Status</label><select id="work-status"><option value="Pending">Pending</option><option value="InProgress">In Progress</option><option value="Done">Done</option></select></div>
+      <button type="button" class="btn-primary" onclick="JOBLIST.saveWork()">&#10003; Add Work</button>
+    </section>
+
+    <!-- PARTS (from job detail) -->
+    <section id="page-parts" class="page">
+      <div class="form-section-title">Add Part / Spare</div>
+      <div class="form-group">
+        <label>Part Number</label>
+        <div class="search-input-row">
+          <input type="text" id="part-number" placeholder="Scan or type" class="search-input" />
+          <button type="button" class="search-btn" onclick="PARTS.openScanner()" title="Scan QR/Barcode">📷</button>
+        </div>
+      </div>
+      <div class="form-group"><label>Part Name <span class="required">*</span></label><input type="text" id="part-name" placeholder="e.g. Brake Pad" required /></div>
+      <div class="form-row">
+        <div class="form-group half"><label>Quantity</label><input type="number" id="part-qty" value="1" min="1" /></div>
+        <div class="form-group half"><label>Unit Price (&#8377;)</label><input type="number" id="part-price" placeholder="0" min="0" /></div>
+      </div>
+      <div class="form-group"><label>Supplier</label><input type="text" id="part-supplier" placeholder="Supplier name" /></div>
+      <div class="form-group"><label>Warranty</label><input type="text" id="part-warranty" placeholder="e.g. 6 months" /></div>
+      <button type="button" class="btn-primary" onclick="PARTS.savePart()">&#10003; Add Part</button>
+    </section>
+
+    <!-- QR SCANNER OVERLAY -->
+    <section id="page-qr-scanner" class="page" style="padding:0">
+      <div class="qr-overlay">
+        <div class="qr-header">
+          <span>Scan Barcode / QR Code</span>
+          <button class="qr-close" onclick="PARTS.closeScanner()">&#10005;</button>
+        </div>
+        <div id="qr-reader"></div>
+      </div>
+    </section>
+
+    <!-- BILLING (from job detail) -->
+    <section id="page-billing" class="page">
+      <div class="form-section-title">Create Bill</div>
+      <div class="form-group"><label>Labour Charges (&#8377;) <span class="required">*</span></label><input type="number" id="bill-labour" placeholder="0" min="0" oninput="BILLING.calculate()" /></div>
+      <div class="form-group"><label>Parts Cost (&#8377;) <small>(auto from parts)</small></label><input type="number" id="bill-parts" placeholder="0" readonly /></div>
+      <div class="form-group"><label>Discount (&#8377;)</label><input type="number" id="bill-discount" value="0" min="0" oninput="BILLING.calculate()" /></div>
+      <div class="form-row">
+        <div class="form-group half"><label>Tax / GST (%)</label><input type="number" id="bill-tax-pct" value="18" min="0" max="50" oninput="BILLING.calculate()" /></div>
+        <div class="form-group half"><label>Tax Amount</label><input type="number" id="bill-tax-amt" readonly /></div>
+      </div>
+      <div class="bill-total-card">
+        <span>Total Amount</span>
+        <span class="bill-total-value" id="bill-total">&#8377;0</span>
+      </div>
+      <div class="form-group"><label>Payment Method</label><select id="bill-method"><option value="Cash">Cash</option><option value="UPI">UPI</option><option value="Card">Card</option></select></div>
+      <div class="form-group"><label>Amount Paid (&#8377;)</label><input type="number" id="bill-paid" placeholder="0" min="0" /></div>
+      <button type="button" class="btn-primary" onclick="BILLING.saveBill()">&#10003; Create Bill</button>
+    </section>
+
+    <!-- DELIVERY (from job detail) -->
+    <section id="page-delivery" class="page">
+      <div class="form-section-title">Delivery Details</div>
+      <div class="form-group"><label>Final Odometer (km)</label><input type="number" id="del-odo" placeholder="e.g. 45100" /></div>
+      <div class="form-group"><label>Delivery Notes</label><textarea id="del-notes" placeholder="Any notes for customer..." rows="3"></textarea></div>
+      <div class="form-group"><label>Next Service Reminder Date</label><input type="date" id="del-reminder" /></div>
+      <div class="form-group"><label>Customer Rating</label>
+        <div class="star-rating" id="star-rating">
+          <span class="star" data-val="1">&#9733;</span><span class="star" data-val="2">&#9733;</span><span class="star" data-val="3">&#9733;</span><span class="star" data-val="4">&#9733;</span><span class="star" data-val="5">&#9733;</span>
+        </div>
+      </div>
+      <div class="form-group"><label>Customer Feedback</label><textarea id="del-feedback" placeholder="Customer comments..." rows="2"></textarea></div>
+      <div class="form-group"><label>Customer Signature</label>
+        <canvas id="signature-canvas" width="320" height="150"></canvas>
+        <button type="button" class="btn-secondary" style="margin-top:6px;width:auto;padding:8px 16px" onclick="DELIVERY.clearSignature()">Clear</button>
+      </div>
+      <button type="button" class="btn-primary" style="background:linear-gradient(135deg,#43A047,#2E7D32)" onclick="DELIVERY.completeDelivery()">&#10003; Complete Delivery</button>
+    </section>
+
+    <!-- SERVICE HISTORY -->
+    <section id="page-history" class="page">
+      <div id="history-content"></div>
+    </section>
+
+    <!-- MORE MENU -->
+    <section id="page-more" class="page">
+      <div class="more-menu">
+        <button class="more-item" onclick="showPage('settings','Settings')"><span class="more-icon">⚙️</span><span>Settings</span></button>
+        <button class="more-item" onclick="showPage('history','Service History')"><span class="more-icon">📊</span><span>Service History</span></button>
+        <button class="more-item" onclick="AUTH.logout()"><span class="more-icon">🔒</span><span>Lock App</span></button>
+      </div>
+    </section>
+
     <!-- SETTINGS -->
     <section id="page-settings" class="page">
       <div class="settings-card">
-        <h3 class="settings-title">⚙️ Settings</h3>
-
-        <div class="form-group">
-          <label>Business Name</label>
-          <input type="text" id="set-business" />
-        </div>
-        <div class="form-group">
-          <label>Owner Name</label>
-          <input type="text" id="set-owner" />
-        </div>
-        <div class="form-group">
-          <label>Mobile Number</label>
-          <input type="tel" id="set-phone" maxlength="10" />
-        </div>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="set-email" placeholder="yourname@gmail.com" />
-        </div>
-        <button class="btn-primary" onclick="saveSettings()">💾 Save Settings</button>
-
+        <h3 class="settings-title">&#9881; Settings</h3>
+        <div class="form-group"><label>Business Name</label><input type="text" id="set-business" /></div>
+        <div class="form-group"><label>Owner Name</label><input type="text" id="set-owner" /></div>
+        <div class="form-group"><label>Mobile Number</label><input type="tel" id="set-phone" maxlength="10" /></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="set-email" /></div>
+        <button class="btn-primary" onclick="saveSettings()">&#128190; Save Settings</button>
         <div class="settings-divider"></div>
-
         <button class="btn-danger" onclick="changePin()">🔐 Change PIN</button>
-        <button class="btn-danger" style="margin-top:10px; background:#C62828" onclick="AUTH.logout()">🔒 Lock App</button>
+        <button class="btn-danger" style="margin-top:10px;background:#C62828" onclick="AUTH.logout()">🔒 Lock App</button>
       </div>
     </section>
 
   </main>
 
-  <!-- BOTTOM NAV -->
+  <!-- BOTTOM NAV (5 tabs) -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" id="nav-home" onclick="showPage('home','Car Wash Manager')">
-      <span class="nav-icon">🏠</span>
-      <span class="nav-label">Home</span>
-    </button>
-    <button class="nav-btn" id="nav-new-entry" onclick="showPage('new-entry','New Entry')">
-      <span class="nav-icon">➕</span>
-      <span class="nav-label">New Entry</span>
-    </button>
-    <button class="nav-btn" id="nav-search" onclick="showPage('search','Search')">
-      <span class="nav-icon">🔍</span>
-      <span class="nav-label">Search</span>
-    </button>
-    <button class="nav-btn" id="nav-settings" onclick="showPage('settings','Settings')">
-      <span class="nav-icon">⚙️</span>
-      <span class="nav-label">Settings</span>
-    </button>
+    <button class="nav-btn active" id="nav-home" onclick="showPage('home','Garage Manager')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+    <button class="nav-btn" id="nav-new-job" onclick="showPage('new-job','New Job Card')"><span class="nav-icon">➕</span><span class="nav-label">New Job</span></button>
+    <button class="nav-btn" id="nav-search" onclick="showPage('search','Search')"><span class="nav-icon">🔍</span><span class="nav-label">Search</span></button>
+    <button class="nav-btn" id="nav-job-list" onclick="showPage('job-list','Job Cards');JOBLIST.load()"><span class="nav-icon">📋</span><span class="nav-label">Jobs</span></button>
+    <button class="nav-btn" id="nav-more" onclick="showPage('more','More')"><span class="nav-icon">☰</span><span class="nav-label">More</span></button>
   </nav>
-
-</div><!-- end #app -->
+</div>
 
 <!-- TOAST -->
 <div id="toast" class="toast"></div>
 
 <!-- LOADING -->
 <div id="loading" class="loading-overlay" hidden>
-  <div class="loading-card">
-    <div class="spinner"></div>
-    <p id="loading-text">Please wait...</p>
-  </div>
+  <div class="loading-card"><div class="spinner"></div><p id="loading-text">Please wait...</p></div>
 </div>
 
+<script src="js/vendor/html5-qrcode.min.js"></script>
 <script src="js/sheets.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/app.js"></script>
+<script src="js/jobcard.js"></script>
+<script src="js/joblist.js"></script>
+<script src="js/parts.js"></script>
+<script src="js/billing.js"></script>
+<script src="js/delivery.js"></script>
+<script src="js/history.js"></script>
 
 </body>
 </html>

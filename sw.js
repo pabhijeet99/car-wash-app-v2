@@ -1,6 +1,6 @@
-// Car Wash Manager - Service Worker (no external dependencies)
+// Garage Manager - Service Worker (no external dependencies)
 
-const CACHE_NAME = 'carwash-v2';
+const CACHE_NAME = 'garage-v3';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -8,11 +8,18 @@ const APP_ASSETS = [
   './js/app.js',
   './js/auth.js',
   './js/sheets.js',
+  './js/jobcard.js',
+  './js/joblist.js',
+  './js/parts.js',
+  './js/billing.js',
+  './js/delivery.js',
+  './js/history.js',
+  './js/vendor/html5-qrcode.min.js',
   './manifest.json',
   './icons/icon.svg'
 ];
 
-// Install — cache all core app files
+// Install - cache all core app files
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
@@ -22,7 +29,7 @@ self.addEventListener('install', function(event) {
   self.skipWaiting();
 });
 
-// Activate — clear old caches
+// Activate - clear old caches
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(keys) {
@@ -35,7 +42,7 @@ self.addEventListener('activate', function(event) {
   self.clients.claim();
 });
 
-// Fetch — network first for API calls, cache first for app assets
+// Fetch - network first for API calls, cache first for app assets
 self.addEventListener('fetch', function(event) {
   var url = event.request.url;
 
@@ -47,7 +54,6 @@ self.addEventListener('fetch', function(event) {
   // For navigation and app assets: try network first, fall back to cache
   event.respondWith(
     fetch(event.request).then(function(response) {
-      // Cache successful responses
       if (response.ok) {
         var clone = response.clone();
         caches.open(CACHE_NAME).then(function(cache) {
@@ -56,7 +62,6 @@ self.addEventListener('fetch', function(event) {
       }
       return response;
     }).catch(function() {
-      // Network failed — serve from cache (offline support)
       return caches.match(event.request).then(function(cached) {
         return cached || caches.match('./index.html');
       });

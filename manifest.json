@@ -1,7 +1,7 @@
 {
-  "name": "Car Wash Manager",
-  "short_name": "CarWash",
-  "description": "Customer management app for car wash service centre",
+  "name": "Garage Manager",
+  "short_name": "Garage",
+  "description": "Complete garage and auto service management app",
   "background_color": "#ffffff",
   "theme_color": "#1565C0",
   "dir": "ltr",
