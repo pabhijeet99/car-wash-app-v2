@@ -177,11 +177,36 @@ function registerNewClient(params) {
       onboardSheet.getRange(r,1,1,2).setFontWeight('bold').setBackground('#E3F2FD');
   }
 
-  // Drive folder
-  var folder;
+  // Drive folder structure:
+  // 📁 {Garage Name}
+  //   📁 Documents  (Aadhaar, PAN, DL, GST, Cheque, Agreement)
+  //   📁 Photos     (Garage photos, complaint photos, signatures)
+  //   📁 Client Data (reserved for future use)
+  //   📄 Garage Records - {name}.gsheet
+  var mainFolder, docsFolder, photosFolder, clientDataFolder;
   try {
-    folder = DriveApp.createFolder('Garage Docs - ' + businessName);
-    onboardSheet.appendRow(['Documents Folder URL', folder.getUrl()]);
+    var folderName = params.garageName || businessName;
+    mainFolder = DriveApp.createFolder(folderName);
+    docsFolder = mainFolder.createFolder('Documents');
+    photosFolder = mainFolder.createFolder('Photos');
+    clientDataFolder = mainFolder.createFolder('Client Data');
+
+    // Move the spreadsheet into the main garage folder
+    DriveApp.getFileById(ss.getId()).moveTo(mainFolder);
+
+    // Store all folder URLs in Onboarding Docs
+    onboardSheet.appendRow(['--- DRIVE FOLDERS ---', '']);
+    onboardSheet.appendRow(['Main Folder URL', mainFolder.getUrl()]);
+    onboardSheet.appendRow(['Documents Folder URL', docsFolder.getUrl()]);
+    onboardSheet.appendRow(['Photos Folder URL', photosFolder.getUrl()]);
+    onboardSheet.appendRow(['Client Data Folder URL', clientDataFolder.getUrl()]);
+
+    // Format the section header
+    var lr = onboardSheet.getLastRow();
+    for (var r2 = lr - 4; r2 <= lr; r2++) {
+      if (onboardSheet.getRange(r2,1).getValue().toString().indexOf('---') === 0)
+        onboardSheet.getRange(r2,1,1,2).setFontWeight('bold').setBackground('#E3F2FD');
+    }
   } catch(e) {}
 
   // Share with email
@@ -196,10 +221,10 @@ function registerNewClient(params) {
       var ms = mss.getSheetByName('Clients');
       if (!ms) {
         ms = mss.insertSheet('Clients');
-        ms.appendRow(['Date','Business','Owner','Email','Phone','Sheet ID','Sheet URL']);
-        ms.getRange(1,1,1,7).setFontWeight('bold').setBackground('#1565C0').setFontColor('#FFFFFF');
+        ms.appendRow(['Date','Business','Owner','Email','Phone','Sheet ID','Sheet URL','Drive Folder']);
+        ms.getRange(1,1,1,8).setFontWeight('bold').setBackground('#1565C0').setFontColor('#FFFFFF');
       }
-      ms.appendRow([_now(), businessName, ownerName, email, phone, ss.getId(), ss.getUrl()]);
+      ms.appendRow([_now(), businessName, ownerName, email, phone, ss.getId(), ss.getUrl(), mainFolder ? mainFolder.getUrl() : '']);
     } catch(e) {}
   }
 
@@ -334,10 +359,10 @@ function createJobCard(params) {
     });
   }
 
-  // 5. Upload complaint photos
+  // 5. Upload complaint photos → Photos subfolder
   var photoUrls = [];
   if (complaints.photos && complaints.photos.length > 0) {
-    var folder = _getClientFolder(ss, params.sheetId);
+    var folder = _getSubfolder(ss, params.sheetId, 'Photos Folder URL');
     complaints.photos.forEach(function(photoB64, idx) {
       try {
         var b64 = photoB64;
@@ -631,10 +656,10 @@ function updateDelivery(params) {
       if (params.deliveryNotes) jcs.getRange(row, 16).setValue(params.deliveryNotes);
       if (params.reminderDate) jcs.getRange(row, 18).setValue(params.reminderDate);
 
-      // Upload signature if provided
+      // Upload signature if provided → Photos subfolder
       if (params.signatureData) {
         try {
-          var folder = _getClientFolder(ss, params.sheetId);
+          var folder = _getSubfolder(ss, params.sheetId, 'Photos Folder URL');
           var b64 = params.signatureData;
           if (b64.indexOf(',') !== -1) b64 = b64.split(',')[1];
           var blob = Utilities.newBlob(Utilities.base64Decode(b64), 'image/png', 'signature_' + params.jobCardNumber + '.png');
@@ -738,23 +763,41 @@ function getDashboardStats(params) {
 }
 
 // =============================================
-// HELPER: Get/create client Drive folder
+// HELPER: Get subfolder from Drive structure
+// folderKey: 'Documents Folder URL' or 'Photos Folder URL'
 // =============================================
-function _getClientFolder(ss, sheetId) {
+function _getSubfolder(ss, sheetId, folderKey) {
   var onboard = ss.getSheetByName('Onboarding Docs');
   if (onboard) {
     var data = onboard.getDataRange().getValues();
+    // First try to find the specific subfolder
     for (var i = 0; i < data.length; i++) {
-      if (data[i][0] === 'Documents Folder URL' && data[i][1]) {
+      if (data[i][0] === folderKey && data[i][1]) {
         try {
           var fid = data[i][1].toString().match(/folders\/([a-zA-Z0-9_-]+)/);
           if (fid) return DriveApp.getFolderById(fid[1]);
         } catch(e) {}
       }
     }
+    // Fallback: look for Main Folder and create subfolder inside it
+    for (var j = 0; j < data.length; j++) {
+      if (data[j][0] === 'Main Folder URL' && data[j][1]) {
+        try {
+          var mainFid = data[j][1].toString().match(/folders\/([a-zA-Z0-9_-]+)/);
+          if (mainFid) {
+            var mainFolder = DriveApp.getFolderById(mainFid[1]);
+            var subName = folderKey === 'Documents Folder URL' ? 'Documents' : 'Photos';
+            var sub = mainFolder.createFolder(subName);
+            onboard.appendRow([folderKey, sub.getUrl()]);
+            return sub;
+          }
+        } catch(e) {}
+      }
+    }
   }
+  // Last resort fallback for legacy accounts without folder structure
   var folder = DriveApp.createFolder('Garage Docs - ' + sheetId);
-  if (onboard) onboard.appendRow(['Documents Folder URL', folder.getUrl()]);
+  if (onboard) onboard.appendRow([folderKey, folder.getUrl()]);
   return folder;
 }
 
@@ -873,7 +916,11 @@ function uploadFile(params) {
 
   var blob = Utilities.newBlob(Utilities.base64Decode(base64), mimeType, docType + '_' + fileName);
   var ss = SpreadsheetApp.openById(sheetId);
-  var folder = _getClientFolder(ss, sheetId);
+
+  // Route to correct subfolder: identity/business docs → Documents, photos → Photos
+  var docTypes = ['aadhaar','pan','dl','gst','cheque','agreement'];
+  var folderKey = docTypes.indexOf(docType) !== -1 ? 'Documents Folder URL' : 'Photos Folder URL';
+  var folder = _getSubfolder(ss, sheetId, folderKey);
   var file = folder.createFile(blob);
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   var fileUrl = file.getUrl();
