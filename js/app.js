@@ -390,6 +390,14 @@ function changePin() {
   showScreen('setup');
 }
 
+function fullReset() {
+  if (confirm('This will log you out completely and clear all local data. You will need to register again.\n\nAre you sure?')) {
+    localStorage.clear();
+    sessionStorage.clear();
+    location.reload();
+  }
+}
+
 // Auto-uppercase vehicle number in search
 var vehInput = document.getElementById('jc-veh-number');
 if (vehInput) vehInput.addEventListener('input', function() { var p = this.selectionStart; this.value = this.value.toUpperCase(); this.setSelectionRange(p, p); });
