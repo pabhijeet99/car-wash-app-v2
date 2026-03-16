@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.garagemanager.app",
-    "sha256_cert_fingerprints": ["__SHA256_FINGERPRINT__"]
+    "package_name": "io.github.pabhijeet99.twa",
+    "sha256_cert_fingerprints": ["46:E6:97:83:C7:50:C9:49:E6:17:9A:64:71:A9:A0:FF:3D:D1:D4:4F:02:66:3C:52:97:3A:B2:06:79:74:D3:08"]
   }
 }]
