@@ -1,6 +1,6 @@
 // Garage Manager - Service Worker (no external dependencies)
 
-const CACHE_NAME = 'garage-v3';
+const CACHE_NAME = 'garage-v4';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -16,7 +16,9 @@ const APP_ASSETS = [
   './js/history.js',
   './js/vendor/html5-qrcode.min.js',
   './manifest.json',
-  './icons/icon.svg'
+  './icons/icon.svg',
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png'
 ];
 
 // Install - cache all core app files

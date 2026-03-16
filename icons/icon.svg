@@ -25,5 +25,10 @@
     <line x1="10" y1="-112" x2="10" y2="-125" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
   </g>
   <!-- Text -->
-  <text x="256" y="420" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="52" fill="#FFFFFF">CAR WASH</text>
+  <!-- Wrench icon -->
+  <g transform="translate(256,230)">
+    <path d="M-15,-100 L-5,-60 L5,-60 L15,-100 Z" fill="#FFD54F" opacity="0.9"/>
+    <circle cx="0" cy="-105" r="18" fill="none" stroke="#FFD54F" stroke-width="6" opacity="0.9"/>
+  </g>
+  <text x="256" y="420" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="52" fill="#FFFFFF">GARAGE</text>
 </svg>

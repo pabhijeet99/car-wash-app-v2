@@ -1,4 +1,5 @@
 {
+  "id": "/car-wash-app-v2/",
   "name": "Garage Manager",
   "short_name": "Garage",
   "description": "Complete garage and auto service management app",
@@ -11,16 +12,43 @@
   "start_url": "/car-wash-app-v2/index.html",
   "icons": [
     {
-      "src": "icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "icons/icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "type": "image/svg+xml"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Garage Manager Home"
+    }
+  ],
+  "categories": ["business", "utilities"]
 }
