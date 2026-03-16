@@ -197,6 +197,14 @@ const SHEETS = {
     return await this._callScript(params);
   },
 
+  // ---- LOOKUP PART by barcode (from PartsMaster) ----
+  async lookupPart(barcode) {
+    var params = new URLSearchParams({
+      action: 'lookupPart', sheetId: this.getSheetId(), barcode: barcode
+    });
+    return await this._callScript(params);
+  },
+
   // ---- Legacy: ADD RECORD to Visits tab ----
   async addRecord(record) {
     var sheetId = this.getSheetId();

@@ -217,6 +217,11 @@
           <div class="action-desc">Find records</div>
         </button>
       </div>
+      <div class="section-header" style="margin:16px 0 8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:700;font-size:15px;color:#333">📋 Recent Jobs</span>
+        <button style="background:none;border:none;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer" onclick="showPage('job-list','Job Cards');JOBLIST.load()">View All →</button>
+      </div>
+      <div id="dashboard-recent-jobs" style="margin-bottom:16px"><p style="color:#999;text-align:center;font-size:13px">Loading...</p></div>
       <div class="info-strip">
         <span>⚙️</span><span id="strip-info">Garage Manager</span>
         <button class="strip-settings" onclick="showPage('settings','Settings')">Settings</button>
@@ -415,7 +420,7 @@
       <div class="form-group">
         <label>Part Number</label>
         <div class="search-input-row">
-          <input type="text" id="part-number" placeholder="Scan or type" class="search-input" />
+          <input type="text" id="part-number" placeholder="Scan or type" class="search-input" onblur="if(this.value.trim()) PARTS.lookupBarcode(this.value.trim())" />
           <button type="button" class="search-btn" onclick="PARTS.openScanner()" title="Scan QR/Barcode">📷</button>
         </div>
       </div>

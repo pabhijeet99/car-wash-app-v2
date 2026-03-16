@@ -19,6 +19,8 @@ var PARTS = {
             document.getElementById('part-number').value = decodedText;
             showToast('Scanned: ' + decodedText, 'success');
             self.closeScanner();
+            // Auto-lookup from PartsMaster
+            self.lookupBarcode(decodedText);
           },
           function() {} // ignore scan errors
         ).catch(function(err) {
@@ -40,6 +42,26 @@ var PARTS = {
       this.scanner = null;
     }
     goBack();
+  },
+
+  // Lookup barcode in PartsMaster and auto-fill name + MRP
+  lookupBarcode: async function(barcode) {
+    if (!barcode) return;
+    try {
+      var result = await SHEETS.lookupPart(barcode);
+      if (result && result.found) {
+        document.getElementById('part-name').value = result.partName || '';
+        document.getElementById('part-price').value = result.mrp || '';
+        if (result.brand) {
+          document.getElementById('part-supplier').value = result.brand || '';
+        }
+        showToast('Part found: ' + result.partName, 'success');
+      } else {
+        showToast('New part - fill details manually', 'info');
+      }
+    } catch(e) {
+      // Silent fail - user can fill manually
+    }
   },
 
   savePart: async function() {

@@ -93,6 +93,19 @@ html, body { height: 100%; font-family: 'Segoe UI', -apple-system, BlinkMacSyste
 .search-icon { background: linear-gradient(135deg, #26C6DA, #0097A7); box-shadow: 0 4px 12px rgba(0,151,167,0.30); }
 .action-label { font-size: 14px; font-weight: 700; color: var(--text-main); }
 .action-desc { font-size: 11px; color: var(--text-muted); }
+/* RECENT JOBS ON DASHBOARD */
+.recent-job-card { background: var(--surface); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; box-shadow: var(--shadow); cursor: pointer; border-left: 4px solid var(--primary); transition: transform 0.1s; }
+.recent-job-card:active { transform: scale(0.98); }
+.rj-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.rj-jc { font-size: 13px; font-weight: 700; color: var(--primary); }
+.rj-mid { font-size: 13px; color: var(--text); font-weight: 500; }
+.rj-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; color: var(--text-muted); }
+.rj-priority { padding: 2px 8px; border-radius: 10px; font-weight: 600; font-size: 10px; text-transform: uppercase; }
+.rj-priority.priority-low { background: #E8F5E9; color: #2E7D32; }
+.rj-priority.priority-medium { background: #FFF8E1; color: #F57F17; }
+.rj-priority.priority-high { background: #FBE9E7; color: #D84315; }
+.rj-priority.priority-urgent { background: #FFEBEE; color: #B71C1C; }
+
 .info-strip { display: flex; align-items: center; gap: 8px; background: var(--surface); border-radius: var(--radius); padding: 11px 14px; margin-top: 14px; box-shadow: var(--shadow); font-size: 13px; color: var(--text-muted); }
 .strip-settings { margin-left: auto; background: none; border: 1.5px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
 

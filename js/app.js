@@ -298,6 +298,28 @@ function loadDashboard() {
     document.getElementById('stat-pending').textContent = stats.pendingDelivery || 0;
     document.getElementById('stat-revenue').textContent = '\u20B9' + (stats.todayRevenue || 0).toLocaleString('en-IN');
   }).catch(function() {});
+
+  // Load recent active job cards
+  SHEETS.getJobCards('all').then(function(jobs) {
+    var container = document.getElementById('dashboard-recent-jobs');
+    if (!jobs || jobs.length === 0) {
+      container.innerHTML = '<p style="color:#999;text-align:center;font-size:13px;padding:12px">No job cards yet. Tap New Job to create one.</p>';
+      return;
+    }
+    var recent = jobs.slice(0, 5); // show last 5
+    var html = '';
+    recent.forEach(function(j) {
+      var statusClass = (j.status||'').toLowerCase().replace(/\s/g,'');
+      html += '<div class="recent-job-card" onclick="showPage(\'job-list\',\'Job Cards\');JOBLIST.load();setTimeout(function(){JOBLIST.openDetail(\'' + j.jobCardNumber + '\')},600)">' +
+        '<div class="rj-top"><span class="rj-jc">' + j.jobCardNumber + '</span><span class="status-badge ' + statusClass + '">' + (j.status||'Open') + '</span></div>' +
+        '<div class="rj-mid">' + (j.customerName||'Customer') + ' &bull; ' + (j.vehicleNumber||'') + '</div>' +
+        '<div class="rj-bottom"><span>' + (j.serviceType||'') + '</span><span class="rj-priority priority-' + (j.priority||'medium').toLowerCase() + '">' + (j.priority||'') + '</span></div>' +
+      '</div>';
+    });
+    container.innerHTML = html;
+  }).catch(function() {
+    document.getElementById('dashboard-recent-jobs').innerHTML = '<p style="color:#999;text-align:center;font-size:13px">Could not load jobs</p>';
+  });
 }
 
 // =============================================

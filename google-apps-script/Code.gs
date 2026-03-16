@@ -21,6 +21,7 @@ function doGet(e) {
     else if (action === 'getJobCard')   result = getJobCard(e.parameter);
     else if (action === 'getServiceHistory') result = getServiceHistory(e.parameter);
     else if (action === 'getDashboardStats') result = getDashboardStats(e.parameter);
+    else if (action === 'lookupPart')   result = lookupPart(e.parameter);
     else result = { error: 'Unknown action: ' + action };
   } catch (err) { result = { error: err.toString() }; }
   return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
@@ -146,6 +147,11 @@ function registerNewClient(params) {
   _getOrCreateSheet(ss, 'Billing',
     ['BillID','JobCardNumber','LabourCharges','PartsCost','Discount','TaxPercent','TaxAmount','TotalAmount','PaymentStatus','PaymentMethod','PaidAmount','BillDate'],
     [100,140,110,100,80,80,100,110,100,110,100,140]);
+
+  // --- PartsMaster (catalog of known parts with barcode, name, MRP) ---
+  _getOrCreateSheet(ss, 'PartsMaster',
+    ['Barcode','PartName','Brand','MRP','Category'],
+    [160,200,140,100,140]);
 
   // --- Onboarding Docs ---
   var onboardSheet = ss.insertSheet('Onboarding Docs');
@@ -577,6 +583,23 @@ function addParts(params) {
   var price = parseFloat(params.unitPrice) || 0;
   var total = qty * price;
   ps.appendRow([partId, params.jobCardNumber, params.partName||'', params.partNumber||'', qty, price, total, params.supplier||'', params.warranty||'']);
+
+  // Auto-save to PartsMaster if barcode provided and not already in catalog
+  if (params.partNumber) {
+    var pm = _getOrCreateSheet(ss, 'PartsMaster',
+      ['Barcode','PartName','Brand','MRP','Category'], [160,200,140,100,140]);
+    var exists = false;
+    if (pm.getLastRow() > 1) {
+      var pmData = pm.getDataRange().getValues();
+      for (var m = 1; m < pmData.length; m++) {
+        if (pmData[m][0].toString().trim() === params.partNumber.toString().trim()) { exists = true; break; }
+      }
+    }
+    if (!exists) {
+      pm.appendRow([params.partNumber, params.partName||'', params.brand||'', price, params.category||'']);
+    }
+  }
+
   return { success: true, partID: partId, totalPrice: total, message: 'Part added' };
 }
 
@@ -799,6 +822,32 @@ function _getSubfolder(ss, sheetId, folderKey) {
   var folder = DriveApp.createFolder('Garage Docs - ' + sheetId);
   if (onboard) onboard.appendRow([folderKey, folder.getUrl()]);
   return folder;
+}
+
+// =============================================
+// LOOKUP PART BY BARCODE (from PartsMaster)
+// =============================================
+function lookupPart(params) {
+  var ss = SpreadsheetApp.openById(params.sheetId);
+  var pm = ss.getSheetByName('PartsMaster');
+  if (!pm || pm.getLastRow() <= 1) return { found: false };
+
+  var barcode = (params.barcode || '').trim();
+  if (!barcode) return { found: false };
+
+  var data = pm.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0].toString().trim() === barcode) {
+      return {
+        found: true,
+        partName: data[i][1],
+        brand: data[i][2],
+        mrp: data[i][3],
+        category: data[i][4]
+      };
+    }
+  }
+  return { found: false };
 }
 
 // =============================================
