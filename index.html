@@ -17,6 +17,20 @@
 <body>
 
 <!-- ================================================
+     LANDING SCREEN (Login or Sign Up)
+     ================================================ -->
+<div id="screen-landing" hidden>
+  <div class="pin-screen">
+    <div class="pin-logo">🔧🚗</div>
+    <div class="pin-biz-name">Garage Manager</div>
+    <p class="pin-subtitle" style="margin-bottom:30px">Complete garage & auto service management</p>
+    <button class="btn-primary" style="margin-bottom:12px;font-size:16px;padding:14px" onclick="showScreen('login')">🔐 Login</button>
+    <button class="btn-secondary" style="font-size:16px;padding:14px;border:2px solid var(--primary);color:var(--primary)" onclick="showScreen('setup');goSetupStep(1)">📝 Sign Up (New Garage)</button>
+    <p style="color:#999;font-size:12px;margin-top:20px">By continuing you agree to our terms of service</p>
+  </div>
+</div>
+
+<!-- ================================================
      SETUP WIZARD (First Time Only)
      ================================================ -->
 <div id="screen-setup" hidden>
@@ -493,6 +507,7 @@
       <div class="more-menu">
         <button class="more-item" onclick="showPage('settings','Settings')"><span class="more-icon">⚙️</span><span>Settings</span></button>
         <button class="more-item" onclick="showPage('history','Service History')"><span class="more-icon">📊</span><span>Service History</span></button>
+        <button class="more-item" onclick="updateApp()"><span class="more-icon">🔄</span><span>Update App</span></button>
         <button class="more-item" onclick="AUTH.logout()"><span class="more-icon">🔒</span><span>Lock App</span></button>
         <button class="more-item" onclick="fullReset()" style="color:#C62828"><span class="more-icon">🚪</span><span>Logout &amp; Reset</span></button>
       </div>

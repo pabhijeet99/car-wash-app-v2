@@ -198,8 +198,7 @@ const PINUI = {
 // =============================================
 window.addEventListener('DOMContentLoaded', function() {
   if (!AUTH.isSetupDone()) {
-    showScreen('setup');
-    goSetupStep(1);
+    showScreen('landing');
   } else if (AUTH.isLoggedIn()) {
     APP.start(AUTH.getProfile());
   } else {

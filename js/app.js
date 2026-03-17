@@ -27,6 +27,7 @@ function hideLoading() {
 }
 
 function showScreen(name) {
+  document.getElementById('screen-landing').hidden = (name !== 'landing');
   document.getElementById('screen-setup').hidden = (name !== 'setup');
   document.getElementById('screen-login').hidden = (name !== 'login');
   document.getElementById('app').hidden = (name !== 'app');
@@ -416,7 +417,38 @@ function fullReset() {
   if (confirm('This will log you out completely and clear all local data. You will need to register again.\n\nAre you sure?')) {
     localStorage.clear();
     sessionStorage.clear();
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        names.forEach(function(n) { caches.delete(n); });
+      });
+    }
     location.reload();
+  }
+}
+
+function updateApp() {
+  showLoading('Updating app...');
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      var promises = regs.map(function(r) { return r.update(); });
+      return Promise.all(promises);
+    }).then(function() {
+      if ('caches' in window) {
+        return caches.keys().then(function(names) {
+          return Promise.all(names.map(function(n) { return caches.delete(n); }));
+        });
+      }
+    }).then(function() {
+      hideLoading();
+      showToast('App updated! Reloading...', 'success');
+      setTimeout(function() { location.reload(true); }, 1000);
+    }).catch(function() {
+      hideLoading();
+      location.reload(true);
+    });
+  } else {
+    hideLoading();
+    location.reload(true);
   }
 }
 
