@@ -4,7 +4,7 @@
 // Each client gets their own Sheet ID on register.
 // =============================================
 
-const MASTER_URL = 'https://script.google.com/macros/s/AKfycbzcrf9Y8qN5HluIeYzgQnnwiqrWQAsWGOnlPnOiOj8q1EadrMltoIMVZ1vbSKZVgHGs/exec';
+const MASTER_URL = 'https://script.google.com/macros/s/AKfycbxOXsM9L7_-oKU-lrAq65pCj_5VVmA24zwTk5q6tA08gLKa4GgkYhP-OYskXS59ki_f/exec';
 
 const SHEETS = {
 
