@@ -61,6 +61,7 @@ const SHEETS = {
       action: 'register',
       businessName: profile.businessName || '', ownerName: profile.ownerName || '',
       email: profile.email || '', phone: profile.phone || '',
+      pin: profile.pin || '',
       aadhaar: profile.aadhaar || '', pan: profile.pan || '', dl: profile.dl || '',
       gst: profile.gst || '', licenseType: profile.licenseType || '', licenseNumber: profile.licenseNumber || '',
       accHolder: profile.accHolder || '', bankName: profile.bankName || '',

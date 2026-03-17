@@ -30,6 +30,7 @@ function showScreen(name) {
   document.getElementById('screen-landing').hidden = (name !== 'landing');
   document.getElementById('screen-setup').hidden = (name !== 'setup');
   document.getElementById('screen-login').hidden = (name !== 'login');
+  document.getElementById('screen-forgot-pin').hidden = (name !== 'forgot-pin');
   document.getElementById('app').hidden = (name !== 'app');
 }
 

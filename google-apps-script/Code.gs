@@ -7,6 +7,30 @@
 var MASTER_LOG_ID = '';
 
 // =============================================
+// MASTER USERS SHEET (auto-created in script owner's Drive)
+// Stores: Mobile, Email, PIN, SheetID, BusinessName, OwnerName, RegisteredDate
+// =============================================
+function _getUsersSheet() {
+  var props = PropertiesService.getScriptProperties();
+  var usersSheetId = props.getProperty('USERS_SHEET_ID');
+  var ss;
+  if (usersSheetId) {
+    try { ss = SpreadsheetApp.openById(usersSheetId); } catch(e) { ss = null; }
+  }
+  if (!ss) {
+    ss = SpreadsheetApp.create('Garage Manager - Users Registry');
+    var sheet = ss.getActiveSheet();
+    sheet.setName('Users');
+    sheet.appendRow(['Mobile','Email','PIN','SheetID','BusinessName','OwnerName','RegisteredDate','SheetURL']);
+    sheet.getRange(1,1,1,8).setFontWeight('bold').setBackground('#1565C0').setFontColor('#FFFFFF');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidths(1,8,160);
+    props.setProperty('USERS_SHEET_ID', ss.getId());
+  }
+  return ss.getSheetByName('Users') || ss.getActiveSheet();
+}
+
+// =============================================
 // MAIN REQUEST HANDLERS
 // =============================================
 function doGet(e) {
@@ -14,6 +38,8 @@ function doGet(e) {
   var result;
   try {
     if (action === 'register')         result = registerNewClient(e.parameter);
+    else if (action === 'loginUser')   result = loginUser(e.parameter);
+    else if (action === 'resetPin')    result = resetPin(e.parameter);
     else if (action === 'add')         result = addRecord(e.parameter);
     else if (action === 'search')      result = searchRecords(e.parameter);
     else if (action === 'searchCustomer') result = searchCustomer(e.parameter);
@@ -43,6 +69,65 @@ function doPost(e) {
     else result = { error: 'Unknown POST action: ' + action };
   } catch (err) { result = { error: err.toString() }; }
   return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// =============================================
+// LOGIN USER (mobile + PIN)
+// =============================================
+function loginUser(params) {
+  var mobile = (params.mobile || '').trim();
+  var pin = (params.pin || '').trim();
+  if (!mobile || !pin) return { success: false, error: 'Mobile and PIN are required' };
+
+  var sheet = _getUsersSheet();
+  if (sheet.getLastRow() <= 1) return { success: false, error: 'No registered users. Please sign up first.' };
+
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0].toString().trim() === mobile) {
+      if (data[i][2].toString().trim() === pin) {
+        return {
+          success: true,
+          sheetId: data[i][3],
+          profile: {
+            businessName: data[i][4],
+            ownerName: data[i][5],
+            email: data[i][1],
+            phone: data[i][0]
+          }
+        };
+      } else {
+        return { success: false, error: 'Incorrect PIN' };
+      }
+    }
+  }
+  return { success: false, error: 'Mobile number not registered. Please sign up.' };
+}
+
+// =============================================
+// RESET PIN (verify mobile + email → set new PIN)
+// =============================================
+function resetPin(params) {
+  var mobile = (params.mobile || '').trim();
+  var email = (params.email || '').trim().toLowerCase();
+  var newPin = (params.newPin || '').trim();
+  if (!mobile || !email || !newPin) return { success: false, error: 'Mobile, email and new PIN are required' };
+
+  var sheet = _getUsersSheet();
+  if (sheet.getLastRow() <= 1) return { success: false, error: 'No registered users found' };
+
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0].toString().trim() === mobile) {
+      if (data[i][1].toString().trim().toLowerCase() === email) {
+        sheet.getRange(i + 1, 3).setValue(newPin);
+        return { success: true, message: 'PIN reset successfully. You can now login.' };
+      } else {
+        return { success: false, error: 'Email does not match. Use the email you registered with.' };
+      }
+    }
+  }
+  return { success: false, error: 'Mobile number not found' };
 }
 
 // =============================================
@@ -231,6 +316,25 @@ function registerNewClient(params) {
         ms.getRange(1,1,1,8).setFontWeight('bold').setBackground('#1565C0').setFontColor('#FFFFFF');
       }
       ms.appendRow([_now(), businessName, ownerName, email, phone, ss.getId(), ss.getUrl(), mainFolder ? mainFolder.getUrl() : '']);
+    } catch(e) {}
+  }
+
+  // Save to master Users registry (mobile + email + PIN + sheetId)
+  var pin = params.pin || '';
+  if (phone && pin) {
+    try {
+      var usersSheet = _getUsersSheet();
+      // Check if mobile already exists
+      var exists = false;
+      if (usersSheet.getLastRow() > 1) {
+        var uData = usersSheet.getDataRange().getValues();
+        for (var u = 1; u < uData.length; u++) {
+          if (uData[u][0].toString().trim() === phone.trim()) { exists = true; break; }
+        }
+      }
+      if (!exists) {
+        usersSheet.appendRow([phone, email, pin, ss.getId(), businessName, ownerName, _now(), ss.getUrl()]);
+      }
     } catch(e) {}
   }
 

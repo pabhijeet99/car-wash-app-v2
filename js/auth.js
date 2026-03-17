@@ -1,7 +1,6 @@
 // =============================================
-// CAR WASH MANAGER — PIN Authentication
-// + Auto-registration with Google Sheet creation
-// Works perfectly in Android APK WebView
+// GARAGE MANAGER — Authentication
+// Mobile + PIN login via server-side verification
 // =============================================
 
 const AUTH = {
@@ -41,8 +40,91 @@ const AUTH = {
 
   logout() {
     sessionStorage.removeItem('cw_session');
-    showScreen('login');
-    showToast('App locked', 'info');
+    showScreen('landing');
+    showToast('Logged out', 'info');
+  },
+
+  // Server-side login: mobile + PIN
+  async serverLogin(mobile, pin) {
+    showLoading('Logging in...');
+    try {
+      var params = new URLSearchParams({
+        action: 'loginUser', mobile: mobile, pin: pin
+      });
+      var data = await SHEETS._callScript(params);
+      hideLoading();
+      if (data.success) {
+        // Save locally for quick access
+        AUTH.savePin(pin);
+        AUTH.saveProfile(data.profile);
+        SHEETS.saveSheetId(data.sheetId);
+        AUTH.login();
+        APP.start(data.profile);
+        showToast('Welcome back, ' + (data.profile.ownerName || data.profile.businessName) + '!', 'success');
+      } else {
+        return data.error || 'Login failed';
+      }
+    } catch(err) {
+      hideLoading();
+      return err.message || 'Connection error';
+    }
+    return null;
+  },
+
+  // Verify identity for PIN reset
+  async verifyResetIdentity() {
+    var mobile = document.getElementById('reset-mobile').value.trim();
+    var email = document.getElementById('reset-email').value.trim();
+    var errEl = document.getElementById('reset-error');
+    errEl.textContent = '';
+
+    if (!mobile || mobile.length !== 10) { errEl.textContent = 'Enter valid 10-digit mobile'; return; }
+    if (!email || email.indexOf('@') === -1) { errEl.textContent = 'Enter valid email'; return; }
+
+    // Show new PIN fields
+    document.getElementById('reset-verify-section').hidden = true;
+    document.getElementById('reset-new-pin-section').hidden = false;
+    errEl.textContent = '';
+  },
+
+  // Submit new PIN
+  async submitResetPin() {
+    var mobile = document.getElementById('reset-mobile').value.trim();
+    var email = document.getElementById('reset-email').value.trim();
+    var newPin = document.getElementById('reset-new-pin').value.trim();
+    var confirmPin = document.getElementById('reset-confirm-pin').value.trim();
+    var errEl = document.getElementById('reset-error');
+    errEl.textContent = '';
+
+    if (newPin.length !== 4) { errEl.textContent = 'PIN must be 4 digits'; return; }
+    if (newPin !== confirmPin) { errEl.textContent = 'PINs do not match'; return; }
+
+    showLoading('Resetting PIN...');
+    try {
+      var params = new URLSearchParams({
+        action: 'resetPin', mobile: mobile, email: email, newPin: newPin
+      });
+      var data = await SHEETS._callScript(params);
+      hideLoading();
+      if (data.success) {
+        showToast('PIN reset successfully! Please login.', 'success');
+        // Reset form
+        document.getElementById('reset-new-pin-section').hidden = true;
+        document.getElementById('reset-verify-section').hidden = false;
+        document.getElementById('reset-mobile').value = '';
+        document.getElementById('reset-email').value = '';
+        document.getElementById('reset-new-pin').value = '';
+        document.getElementById('reset-confirm-pin').value = '';
+        showScreen('login');
+        // Pre-fill mobile
+        document.getElementById('login-mobile').value = mobile;
+      } else {
+        errEl.textContent = data.error || 'Reset failed';
+      }
+    } catch(err) {
+      hideLoading();
+      errEl.textContent = err.message || 'Connection error';
+    }
   }
 };
 
@@ -86,18 +168,27 @@ const PINUI = {
     else this.handleSetupPin();
   },
 
-  handleLogin() {
-    if (AUTH.verifyPin(this.values['login'])) {
-      AUTH.login();
-      APP.start(AUTH.getProfile());
-    } else {
-      document.getElementById('login-pin-error').textContent = '❌ Wrong PIN. Try again.';
+  async handleLogin() {
+    var mobile = document.getElementById('login-mobile').value.trim();
+    var pin = this.values['login'];
+
+    if (!mobile || mobile.length !== 10) {
+      document.getElementById('login-pin-error').textContent = 'Enter your 10-digit mobile number first';
+      this.clearDots('login');
+      return;
+    }
+
+    var error = await AUTH.serverLogin(mobile, pin);
+    if (error) {
+      document.getElementById('login-pin-error').textContent = error;
       document.getElementById('screen-login').classList.add('shake');
       setTimeout(() => {
         document.getElementById('screen-login').classList.remove('shake');
-        document.getElementById('login-pin-error').textContent = '';
         this.clearDots('login');
       }, 800);
+      setTimeout(() => {
+        document.getElementById('login-pin-error').textContent = '';
+      }, 3000);
     }
   },
 
@@ -106,7 +197,7 @@ const PINUI = {
       this.setupFirstPin = this.values['setup'];
       this.setupPhase    = 'confirm';
       this.clearDots('setup');
-      document.getElementById('setup-pin-hint').textContent = '🔁 Confirm your PIN';
+      document.getElementById('setup-pin-hint').textContent = 'Confirm your PIN';
     } else {
       if (this.values['setup'] === this.setupFirstPin) {
         // PINs match — complete setup
@@ -115,7 +206,7 @@ const PINUI = {
         this.setupPhase    = 'set';
         this.setupFirstPin = '';
         this.clearDots('setup');
-        document.getElementById('setup-pin-hint').textContent = '❌ PINs did not match. Try again.';
+        document.getElementById('setup-pin-hint').textContent = 'PINs did not match. Try again.';
         setTimeout(() => {
           document.getElementById('setup-pin-hint').textContent = 'Enter a 4-digit PIN';
         }, 2000);
@@ -141,6 +232,9 @@ const PINUI = {
     showLoading('Creating your account...');
 
     try {
+      // Add PIN to profile for server-side storage
+      profile.pin = pin;
+
       // Step 1: Register and create Google Sheet
       const result = await SHEETS.register(profile);
 
@@ -185,7 +279,7 @@ const PINUI = {
       this.setupPhase    = 'set';
       this.setupFirstPin = '';
       this.clearDots('setup');
-      document.getElementById('setup-pin-hint').textContent = '❌ ' + err.message;
+      document.getElementById('setup-pin-hint').textContent = err.message;
       setTimeout(() => {
         document.getElementById('setup-pin-hint').textContent = 'Enter a 4-digit PIN';
       }, 3000);
@@ -202,11 +296,6 @@ window.addEventListener('DOMContentLoaded', function() {
   } else if (AUTH.isLoggedIn()) {
     APP.start(AUTH.getProfile());
   } else {
-    showScreen('login');
-    const profile = AUTH.getProfile();
-    if (profile) {
-      document.getElementById('pin-biz-name').textContent =
-        profile.businessName || 'Car Wash Manager';
-    }
+    showScreen('landing');
   }
 });

@@ -1,6 +1,6 @@
 // Garage Manager - Service Worker (no external dependencies)
 
-const CACHE_NAME = 'garage-v6';
+const CACHE_NAME = 'garage-v7';
 const APP_ASSETS = [
   './',
   './index.html',
