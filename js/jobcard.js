@@ -82,12 +82,13 @@ var JOB = {
           var vhtml = '<div class="form-section-title">Select Vehicle or Add New</div>';
           data.vehicles.forEach(function(v) {
             vhtml += '<div class="vehicle-select-card" onclick="JOB.selectVehicle(\'' + esc(v.vehicleID) + '\',\'' + esc(v.vehicleNumber) + '\',\'' + esc(v.brand) + '\',\'' + esc(v.model) + '\',\'' + esc(v.variant) + '\',\'' + esc(v.color) + '\',\'' + esc(v.fuelType) + '\',\'' + esc(v.year) + '\')">' +
-              '<strong>🚗 ' + esc(v.vehicleNumber) + '</strong> - ' + esc(v.brand) + ' ' + esc(v.model) +
+              '<strong><i data-lucide="car" class="inline-icon"></i> ' + esc(v.vehicleNumber) + '</strong> - ' + esc(v.brand) + ' ' + esc(v.model) +
               (v.color ? ' (' + esc(v.color) + ')' : '') + '</div>';
           });
           vhtml += '<div class="vehicle-select-card" onclick="JOB.newVehicle()" style="color:var(--primary);text-align:center"><strong>+ Add New Vehicle</strong></div>';
           document.getElementById('vehicle-selection').innerHTML = vhtml;
           document.getElementById('vehicle-selection').style.display = 'block';
+          renderIcons();
           document.getElementById('vehicle-fields').style.display = 'none';
         }
       } else {
@@ -280,7 +281,8 @@ var JOB = {
     document.getElementById('vehicle-fields').style.display = '';
     document.getElementById('inspection-grid').innerHTML = '';
     document.getElementById('complaint-thumbnails').innerHTML = '';
-    document.getElementById('preview-complaint-photos').innerHTML = '<span class="upload-icon">📷</span><span>Capture damage photos</span>';
+    document.getElementById('preview-complaint-photos').innerHTML = '<span class="upload-icon"><i data-lucide="camera"></i></span><span>Capture damage photos</span>';
+    renderIcons();
 
     // Reset wizard progress
     this.goStep(1);

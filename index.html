@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#1565C0" />
+  <meta name="theme-color" content="#1E293B" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -12,6 +12,9 @@
   <link rel="apple-touch-icon" href="icons/icon.svg" />
   <title>Garage Manager</title>
   <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -21,12 +24,12 @@
      ================================================ -->
 <div id="screen-landing" hidden>
   <div class="pin-screen">
-    <div class="pin-logo">🔧🚗</div>
+    <div class="pin-logo"><div class="app-logo-icon"><i data-lucide="wrench" class="logo-icon"></i><i data-lucide="car" class="logo-icon"></i></div></div>
     <div class="pin-biz-name">Garage Manager</div>
     <p class="pin-subtitle" style="margin-bottom:30px">Complete garage & auto service management</p>
-    <button class="btn-primary" style="margin-bottom:12px;font-size:16px;padding:14px" onclick="showScreen('login')">🔐 Login</button>
-    <button class="btn-secondary" style="font-size:16px;padding:14px;border:2px solid var(--primary);color:var(--primary)" onclick="showScreen('setup');goSetupStep(1)">📝 Sign Up (New Garage)</button>
-    <p style="color:#999;font-size:12px;margin-top:20px">By continuing you agree to our terms of service</p>
+    <button class="btn-primary" style="margin-bottom:12px;font-size:16px;padding:14px" onclick="showScreen('login')"><i data-lucide="lock-keyhole" class="btn-icon"></i> Login</button>
+    <button class="btn-secondary" style="font-size:14px;padding:14px;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.1)" onclick="showScreen('setup');goSetupStep(1)"><i data-lucide="user-plus" class="btn-icon"></i> Sign Up (New Garage)</button>
+    <p style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:20px">By continuing you agree to our terms of service</p>
   </div>
 </div>
 
@@ -53,9 +56,9 @@
       <div class="progress-step" data-step="8"><span>8</span><small>PIN</small></div>
     </div>
 
-    <!-- Step 1-8: Same as before (setup wizard) -->
+    <!-- Step 1: Business Info -->
     <div class="setup-step" id="setup-step-1">
-      <div class="auth-logo">🔧🚗</div>
+      <div class="auth-logo"><i data-lucide="wrench"></i></div>
       <h2 class="auth-title">Welcome!</h2>
       <p class="auth-subtitle">Let's set up your garage management app</p>
       <form id="setup-form-1">
@@ -67,7 +70,7 @@
     </div>
 
     <div class="setup-step" id="setup-step-2" hidden>
-      <div class="auth-logo">📧</div>
+      <div class="auth-logo"><i data-lucide="mail"></i></div>
       <h2 class="auth-title">Your Email</h2>
       <p class="auth-subtitle">We'll create your Google Sheet and share it to your email</p>
       <form id="setup-form-2">
@@ -78,16 +81,16 @@
     </div>
 
     <div class="setup-step" id="setup-step-3" hidden>
-      <div class="auth-logo">🪪</div>
+      <div class="auth-logo"><i data-lucide="id-card"></i></div>
       <h2 class="auth-title">Identity Proof</h2>
       <p class="auth-subtitle">Aadhaar and PAN details for verification</p>
       <form id="setup-form-3">
         <div class="form-section-title">Aadhaar Card <span class="required">*</span></div>
         <div class="form-group"><label>Aadhaar Number <span class="required">*</span></label><input type="text" id="s-aadhaar" placeholder="12-digit number" maxlength="12" inputmode="numeric" required /></div>
-        <div class="form-group"><label>Aadhaar Photo <span class="required">*</span></label><div class="file-upload-area" id="upload-aadhaar" onclick="document.getElementById('file-aadhaar').click()"><input type="file" id="file-aadhaar" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-aadhaar"><span class="upload-icon">📷</span><span>Tap to upload Aadhaar</span></div></div></div>
+        <div class="form-group"><label>Aadhaar Photo <span class="required">*</span></label><div class="file-upload-area" id="upload-aadhaar" onclick="document.getElementById('file-aadhaar').click()"><input type="file" id="file-aadhaar" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-aadhaar"><span class="upload-icon"><i data-lucide="camera"></i></span><span>Tap to upload Aadhaar</span></div></div></div>
         <div class="form-section-title">PAN Card <span class="required">*</span></div>
         <div class="form-group"><label>PAN Number <span class="required">*</span></label><input type="text" id="s-pan" placeholder="e.g. ABCDE1234F" maxlength="10" class="uppercase" required /></div>
-        <div class="form-group"><label>PAN Photo <span class="required">*</span></label><div class="file-upload-area" id="upload-pan" onclick="document.getElementById('file-pan').click()"><input type="file" id="file-pan" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-pan"><span class="upload-icon">📷</span><span>Tap to upload PAN</span></div></div></div>
+        <div class="form-group"><label>PAN Photo <span class="required">*</span></label><div class="file-upload-area" id="upload-pan" onclick="document.getElementById('file-pan').click()"><input type="file" id="file-pan" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-pan"><span class="upload-icon"><i data-lucide="camera"></i></span><span>Tap to upload PAN</span></div></div></div>
         <div class="form-section-title">Driving License (Optional)</div>
         <div class="form-group"><label>DL Number</label><input type="text" id="s-dl" placeholder="Optional" /></div>
         <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(2)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
@@ -95,12 +98,12 @@
     </div>
 
     <div class="setup-step" id="setup-step-4" hidden>
-      <div class="auth-logo">🏢</div>
+      <div class="auth-logo"><i data-lucide="building-2"></i></div>
       <h2 class="auth-title">Business Proof</h2>
       <p class="auth-subtitle">GST or business registration details</p>
       <form id="setup-form-4">
         <div class="form-group"><label>GST Number</label><input type="text" id="s-gst" placeholder="e.g. 22AAAAA0000A1Z5" maxlength="15" class="uppercase" /></div>
-        <div class="form-group"><label>GST Certificate Photo</label><div class="file-upload-area" onclick="document.getElementById('file-gst').click()"><input type="file" id="file-gst" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-gst"><span class="upload-icon">📷</span><span>Upload GST certificate (optional)</span></div></div></div>
+        <div class="form-group"><label>GST Certificate Photo</label><div class="file-upload-area" onclick="document.getElementById('file-gst').click()"><input type="file" id="file-gst" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-gst"><span class="upload-icon"><i data-lucide="camera"></i></span><span>Upload GST certificate (optional)</span></div></div></div>
         <div class="form-group"><label>License Type</label><select id="s-license-type"><option value="">-- None --</option><option value="shop_establishment">Shop & Establishment</option><option value="msme">MSME Certificate</option><option value="trade_license">Trade License</option></select></div>
         <div class="form-group"><label>License Number</label><input type="text" id="s-license-number" placeholder="Optional" /></div>
         <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(3)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
@@ -108,7 +111,7 @@
     </div>
 
     <div class="setup-step" id="setup-step-5" hidden>
-      <div class="auth-logo">🏦</div>
+      <div class="auth-logo"><i data-lucide="landmark"></i></div>
       <h2 class="auth-title">Bank Details</h2>
       <p class="auth-subtitle">For payouts and settlements</p>
       <form id="setup-form-5">
@@ -117,27 +120,27 @@
         <div class="form-group"><label>Account Number <span class="required">*</span></label><input type="text" id="s-acc-number" placeholder="9-18 digits" maxlength="18" inputmode="numeric" required /></div>
         <div class="form-group"><label>Confirm Account Number <span class="required">*</span></label><input type="text" id="s-acc-number-confirm" placeholder="Re-enter" maxlength="18" inputmode="numeric" required /></div>
         <div class="form-group"><label>IFSC Code <span class="required">*</span></label><input type="text" id="s-ifsc" placeholder="e.g. SBIN0001234" maxlength="11" class="uppercase" required /></div>
-        <div class="form-group"><label>Cancelled Cheque Photo <span class="required">*</span></label><div class="file-upload-area" onclick="document.getElementById('file-cheque').click()"><input type="file" id="file-cheque" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-cheque"><span class="upload-icon">📷</span><span>Upload cancelled cheque</span></div></div></div>
+        <div class="form-group"><label>Cancelled Cheque Photo <span class="required">*</span></label><div class="file-upload-area" onclick="document.getElementById('file-cheque').click()"><input type="file" id="file-cheque" accept="image/*" capture="environment" hidden /><div class="upload-placeholder" id="preview-cheque"><span class="upload-icon"><i data-lucide="camera"></i></span><span>Upload cancelled cheque</span></div></div></div>
         <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(4)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
       </form>
     </div>
 
     <div class="setup-step" id="setup-step-6" hidden>
-      <div class="auth-logo">🔧</div>
+      <div class="auth-logo"><i data-lucide="wrench"></i></div>
       <h2 class="auth-title">Garage Details</h2>
       <p class="auth-subtitle">About your garage/service location</p>
       <form id="setup-form-6">
         <div class="form-group"><label>Garage Name <span class="required">*</span></label><input type="text" id="s-garage-name" placeholder="e.g. Rahul Auto Spa" required /></div>
         <div class="form-group"><label>Full Address <span class="required">*</span></label><textarea id="s-garage-address" placeholder="Street, Area, City, PIN" rows="3" required></textarea></div>
         <div class="form-group"><label>Contact Number <span class="required">*</span></label><input type="tel" id="s-garage-phone" placeholder="10-digit" maxlength="10" required /></div>
-        <div class="form-group"><label>Garage Photos <span class="required">*</span> <small>(1-5)</small></label><div class="file-upload-area" onclick="document.getElementById('file-garage').click()"><input type="file" id="file-garage" accept="image/*" capture="environment" multiple hidden /><div class="upload-placeholder" id="preview-garage"><span class="upload-icon">📷</span><span>Upload garage photos</span></div></div><div class="photo-thumbnails" id="garage-thumbnails"></div></div>
+        <div class="form-group"><label>Garage Photos <span class="required">*</span> <small>(1-5)</small></label><div class="file-upload-area" onclick="document.getElementById('file-garage').click()"><input type="file" id="file-garage" accept="image/*" capture="environment" multiple hidden /><div class="upload-placeholder" id="preview-garage"><span class="upload-icon"><i data-lucide="camera"></i></span><span>Upload garage photos</span></div></div><div class="photo-thumbnails" id="garage-thumbnails"></div></div>
         <div class="form-group"><label>Years of Experience</label><input type="number" id="s-experience" placeholder="e.g. 5" min="0" max="50" /></div>
         <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(5)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
       </form>
     </div>
 
     <div class="setup-step" id="setup-step-7" hidden>
-      <div class="auth-logo">📋</div>
+      <div class="auth-logo"><i data-lucide="clipboard-list"></i></div>
       <h2 class="auth-title">Vendor Agreement</h2>
       <p class="auth-subtitle">Review and accept the service agreement</p>
       <form id="setup-form-7">
@@ -150,13 +153,13 @@
           <p><strong>6. Data & Privacy</strong><br/>All data handled per applicable data protection laws.</p>
         </div></div>
         <div class="form-group" style="margin-top:16px"><label class="checkbox-label"><input type="checkbox" id="s-agreement-check" required /><span>I agree to the Vendor Agreement <span class="required">*</span></span></label></div>
-        <div class="form-group"><label>Upload Signed Agreement (Optional)</label><div class="file-upload-area" onclick="document.getElementById('file-agreement').click()"><input type="file" id="file-agreement" accept="image/*,.pdf" capture="environment" hidden /><div class="upload-placeholder" id="preview-agreement"><span class="upload-icon">📄</span><span>Upload signed agreement (optional)</span></div></div></div>
+        <div class="form-group"><label>Upload Signed Agreement (Optional)</label><div class="file-upload-area" onclick="document.getElementById('file-agreement').click()"><input type="file" id="file-agreement" accept="image/*,.pdf" capture="environment" hidden /><div class="upload-placeholder" id="preview-agreement"><span class="upload-icon"><i data-lucide="file-text"></i></span><span>Upload signed agreement (optional)</span></div></div></div>
         <div style="display:flex;gap:10px"><button type="button" class="btn-secondary" onclick="goSetupStep(6)">&larr; Back</button><button type="submit" class="btn-primary" style="margin-top:0">Next &rarr;</button></div>
       </form>
     </div>
 
     <div class="setup-step" id="setup-step-8" hidden>
-      <div class="auth-logo">🔐</div>
+      <div class="auth-logo"><i data-lucide="lock-keyhole"></i></div>
       <h2 class="auth-title">Set Your PIN</h2>
       <p class="auth-subtitle">Create a 4-digit PIN to protect your app</p>
       <div class="pin-dots" id="setup-dots"><span class="dot" id="sd0"></span><span class="dot" id="sd1"></span><span class="dot" id="sd2"></span><span class="dot" id="sd3"></span></div>
@@ -176,7 +179,7 @@
      ================================================ -->
 <div id="screen-login" hidden>
   <div class="pin-screen">
-    <div class="pin-logo">🔧🚗</div>
+    <div class="pin-logo"><div class="app-logo-icon"><i data-lucide="wrench" class="logo-icon"></i><i data-lucide="car" class="logo-icon"></i></div></div>
     <div class="pin-biz-name">Garage Manager</div>
     <p class="pin-subtitle">Login with your mobile &amp; PIN</p>
     <div id="login-mobile-section">
@@ -206,7 +209,7 @@
      ================================================ -->
 <div id="screen-forgot-pin" hidden>
   <div class="auth-card" style="max-width:400px;margin:60px auto;padding:30px 20px">
-    <div class="auth-logo">🔐</div>
+    <div class="auth-logo"><i data-lucide="lock-keyhole"></i></div>
     <h2 class="auth-title">Reset PIN</h2>
     <p class="auth-subtitle">Enter your registered mobile &amp; email to reset</p>
     <div class="form-group"><label>Mobile Number <span class="required">*</span></label><input type="tel" id="reset-mobile" placeholder="10-digit mobile" maxlength="10" inputmode="numeric" /></div>
@@ -219,7 +222,7 @@
     <div id="reset-verify-section">
       <button class="btn-primary" onclick="AUTH.verifyResetIdentity()">Verify &amp; Continue</button>
     </div>
-    <p id="reset-error" style="color:#C62828;text-align:center;font-size:13px;margin-top:10px"></p>
+    <p id="reset-error" style="color:var(--danger);text-align:center;font-size:13px;margin-top:10px"></p>
     <button class="btn-secondary" style="margin-top:10px" onclick="showScreen('login')">Back to Login</button>
   </div>
 </div>
@@ -233,7 +236,7 @@
     <div class="header-center"><span id="header-text">Garage Manager</span></div>
     <div class="header-right">
       <button class="logout-btn" onclick="AUTH.logout()" title="Lock App">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </button>
     </div>
   </header>
@@ -243,7 +246,7 @@
     <!-- HOME / DASHBOARD -->
     <section id="page-home" class="page active">
       <div class="hero-section">
-        <div class="hero-logo">🔧🚗</div>
+        <div class="hero-logo"><div class="app-logo-icon"><i data-lucide="wrench" class="logo-icon"></i><i data-lucide="car" class="logo-icon"></i></div></div>
         <h2 class="hero-title" id="business-name-display">Garage Manager</h2>
         <p class="hero-subtitle" id="user-greeting">Welcome!</p>
       </div>
@@ -255,23 +258,23 @@
       </div>
       <div class="action-grid">
         <button class="action-card" onclick="showPage('new-job','New Job Card')">
-          <div class="action-icon new-entry-icon">➕</div>
+          <div class="action-icon new-entry-icon"><i data-lucide="plus-circle"></i></div>
           <div class="action-label">New Job</div>
           <div class="action-desc">Create job card</div>
         </button>
         <button class="action-card" onclick="showPage('search','Search')">
-          <div class="action-icon search-icon">🔍</div>
+          <div class="action-icon search-icon"><i data-lucide="search"></i></div>
           <div class="action-label">Search</div>
           <div class="action-desc">Find records</div>
         </button>
       </div>
       <div class="section-header" style="margin:16px 0 8px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-weight:700;font-size:15px;color:#333">📋 Recent Jobs</span>
-        <button style="background:none;border:none;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer" onclick="showPage('job-list','Job Cards');JOBLIST.load()">View All →</button>
+        <span style="font-weight:600;font-size:14px;color:var(--text-main);display:flex;align-items:center;gap:6px"><i data-lucide="clipboard-list" class="section-icon"></i> Recent Jobs</span>
+        <button style="background:none;border:none;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer" onclick="showPage('job-list','Job Cards');JOBLIST.load()">View All &rarr;</button>
       </div>
-      <div id="dashboard-recent-jobs" style="margin-bottom:16px"><p style="color:#999;text-align:center;font-size:13px">Loading...</p></div>
+      <div id="dashboard-recent-jobs" style="margin-bottom:16px"><p style="color:var(--text-muted);text-align:center;font-size:13px">Loading...</p></div>
       <div class="info-strip">
-        <span>⚙️</span><span id="strip-info">Garage Manager</span>
+        <i data-lucide="settings" class="strip-icon"></i><span id="strip-info">Garage Manager</span>
         <button class="strip-settings" onclick="showPage('settings','Settings')">Settings</button>
       </div>
     </section>
@@ -297,7 +300,7 @@
           <label>Mobile Number <span class="required">*</span></label>
           <div class="search-input-row">
             <input type="tel" id="jc-phone" placeholder="10-digit mobile" maxlength="10" class="search-input" />
-            <button type="button" class="search-btn" onclick="JOB.lookupCustomer()">🔍</button>
+            <button type="button" class="search-btn" onclick="JOB.lookupCustomer()"><i data-lucide="search"></i></button>
           </div>
         </div>
         <div id="customer-lookup-result"></div>
@@ -386,7 +389,7 @@
         <div class="form-group"><label>Photos <small>(optional)</small></label>
           <div class="file-upload-area" onclick="document.getElementById('jc-complaint-photos').click()">
             <input type="file" id="jc-complaint-photos" accept="image/*" capture="environment" multiple hidden />
-            <div class="upload-placeholder" id="preview-complaint-photos"><span class="upload-icon">📷</span><span>Capture damage photos</span></div>
+            <div class="upload-placeholder" id="preview-complaint-photos"><span class="upload-icon"><i data-lucide="camera"></i></span><span>Capture damage photos</span></div>
           </div>
           <div class="photo-thumbnails" id="complaint-thumbnails"></div>
         </div>
@@ -413,7 +416,7 @@
         <div id="job-review-summary"></div>
         <div style="display:flex;gap:10px;margin-top:16px">
           <button type="button" class="btn-secondary" onclick="JOB.goStep(4)">&larr; Back</button>
-          <button type="button" class="btn-primary" style="margin-top:0;background:linear-gradient(135deg,#43A047,#2E7D32)" onclick="JOB.saveJobCard()">&#10003; Create Job Card</button>
+          <button type="button" class="btn-primary btn-success" style="margin-top:0" onclick="JOB.saveJobCard()">&#10003; Create Job Card</button>
         </div>
       </div>
     </section>
@@ -422,13 +425,13 @@
     <section id="page-search" class="page">
       <div class="search-container">
         <div class="search-toggle">
-          <button class="toggle-btn active" onclick="setSearchType('phone',this)">📱 Phone</button>
-          <button class="toggle-btn" onclick="setSearchType('vehicle',this)">🚗 Vehicle</button>
-          <button class="toggle-btn" onclick="setSearchType('jobcard',this)">📋 Job Card</button>
+          <button class="toggle-btn active" onclick="setSearchType('phone',this)"><i data-lucide="smartphone" class="toggle-icon"></i> Phone</button>
+          <button class="toggle-btn" onclick="setSearchType('vehicle',this)"><i data-lucide="car" class="toggle-icon"></i> Vehicle</button>
+          <button class="toggle-btn" onclick="setSearchType('jobcard',this)"><i data-lucide="clipboard-list" class="toggle-icon"></i> Job Card</button>
         </div>
         <div class="search-input-row">
           <input type="tel" id="searchQuery" class="search-input" placeholder="Enter phone number..." maxlength="15" />
-          <button class="search-btn" onclick="doSearch()">🔍</button>
+          <button class="search-btn" onclick="doSearch()"><i data-lucide="search"></i></button>
         </div>
       </div>
       <div id="search-results"></div>
@@ -469,7 +472,7 @@
         <label>Part Number</label>
         <div class="search-input-row">
           <input type="text" id="part-number" placeholder="Scan or type" class="search-input" onblur="if(this.value.trim()) PARTS.lookupBarcode(this.value.trim())" />
-          <button type="button" class="search-btn" onclick="PARTS.openScanner()" title="Scan QR/Barcode">📷</button>
+          <button type="button" class="search-btn" onclick="PARTS.openScanner()" title="Scan QR/Barcode"><i data-lucide="camera"></i></button>
         </div>
       </div>
       <div class="form-group"><label>Part Name <span class="required">*</span></label><input type="text" id="part-name" placeholder="e.g. Brake Pad" required /></div>
@@ -528,7 +531,7 @@
         <canvas id="signature-canvas" width="320" height="150"></canvas>
         <button type="button" class="btn-secondary" style="margin-top:6px;width:auto;padding:8px 16px" onclick="DELIVERY.clearSignature()">Clear</button>
       </div>
-      <button type="button" class="btn-primary" style="background:linear-gradient(135deg,#43A047,#2E7D32)" onclick="DELIVERY.completeDelivery()">&#10003; Complete Delivery</button>
+      <button type="button" class="btn-primary btn-success" onclick="DELIVERY.completeDelivery()">&#10003; Complete Delivery</button>
     </section>
 
     <!-- SERVICE HISTORY -->
@@ -539,26 +542,26 @@
     <!-- MORE MENU -->
     <section id="page-more" class="page">
       <div class="more-menu">
-        <button class="more-item" onclick="showPage('settings','Settings')"><span class="more-icon">⚙️</span><span>Settings</span></button>
-        <button class="more-item" onclick="showPage('history','Service History')"><span class="more-icon">📊</span><span>Service History</span></button>
-        <button class="more-item" onclick="updateApp()"><span class="more-icon">🔄</span><span>Update App</span></button>
-        <button class="more-item" onclick="AUTH.logout()"><span class="more-icon">🔒</span><span>Lock App</span></button>
-        <button class="more-item" onclick="fullReset()" style="color:#C62828"><span class="more-icon">🚪</span><span>Logout &amp; Reset</span></button>
+        <button class="more-item" onclick="showPage('settings','Settings')"><span class="more-icon"><i data-lucide="settings"></i></span><span>Settings</span></button>
+        <button class="more-item" onclick="showPage('history','Service History')"><span class="more-icon"><i data-lucide="bar-chart-3"></i></span><span>Service History</span></button>
+        <button class="more-item" onclick="updateApp()"><span class="more-icon"><i data-lucide="refresh-cw"></i></span><span>Update App</span></button>
+        <button class="more-item" onclick="AUTH.logout()"><span class="more-icon"><i data-lucide="lock"></i></span><span>Lock App</span></button>
+        <button class="more-item" onclick="fullReset()" style="color:var(--danger)"><span class="more-icon" style="background:var(--danger-bg);color:var(--danger)"><i data-lucide="log-out"></i></span><span>Logout &amp; Reset</span></button>
       </div>
     </section>
 
     <!-- SETTINGS -->
     <section id="page-settings" class="page">
       <div class="settings-card">
-        <h3 class="settings-title">&#9881; Settings</h3>
+        <h3 class="settings-title"><i data-lucide="settings" class="detail-icon"></i> Settings</h3>
         <div class="form-group"><label>Business Name</label><input type="text" id="set-business" /></div>
         <div class="form-group"><label>Owner Name</label><input type="text" id="set-owner" /></div>
         <div class="form-group"><label>Mobile Number</label><input type="tel" id="set-phone" maxlength="10" /></div>
         <div class="form-group"><label>Email Address</label><input type="email" id="set-email" /></div>
-        <button class="btn-primary" onclick="saveSettings()">&#128190; Save Settings</button>
+        <button class="btn-primary" onclick="saveSettings()"><i data-lucide="save" class="btn-icon"></i> Save Settings</button>
         <div class="settings-divider"></div>
-        <button class="btn-danger" onclick="changePin()">🔐 Change PIN</button>
-        <button class="btn-danger" style="margin-top:10px;background:#C62828" onclick="AUTH.logout()">🔒 Lock App</button>
+        <button class="btn-danger" onclick="changePin()" style="display:flex;align-items:center;justify-content:center;gap:6px"><i data-lucide="lock-keyhole" class="btn-icon"></i> Change PIN</button>
+        <button class="btn-danger" style="margin-top:10px;background:var(--danger);display:flex;align-items:center;justify-content:center;gap:6px" onclick="AUTH.logout()"><i data-lucide="lock" class="btn-icon"></i> Lock App</button>
       </div>
     </section>
 
@@ -566,11 +569,11 @@
 
   <!-- BOTTOM NAV (5 tabs) -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" id="nav-home" onclick="showPage('home','Garage Manager')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
-    <button class="nav-btn" id="nav-new-job" onclick="showPage('new-job','New Job Card')"><span class="nav-icon">➕</span><span class="nav-label">New Job</span></button>
-    <button class="nav-btn" id="nav-search" onclick="showPage('search','Search')"><span class="nav-icon">🔍</span><span class="nav-label">Search</span></button>
-    <button class="nav-btn" id="nav-job-list" onclick="showPage('job-list','Job Cards');JOBLIST.load()"><span class="nav-icon">📋</span><span class="nav-label">Jobs</span></button>
-    <button class="nav-btn" id="nav-more" onclick="showPage('more','More')"><span class="nav-icon">☰</span><span class="nav-label">More</span></button>
+    <button class="nav-btn active" id="nav-home" onclick="showPage('home','Garage Manager')"><span class="nav-icon"><i data-lucide="home"></i></span><span class="nav-label">Home</span></button>
+    <button class="nav-btn" id="nav-new-job" onclick="showPage('new-job','New Job Card')"><span class="nav-icon"><i data-lucide="plus-circle"></i></span><span class="nav-label">New Job</span></button>
+    <button class="nav-btn" id="nav-search" onclick="showPage('search','Search')"><span class="nav-icon"><i data-lucide="search"></i></span><span class="nav-label">Search</span></button>
+    <button class="nav-btn" id="nav-job-list" onclick="showPage('job-list','Job Cards');JOBLIST.load()"><span class="nav-icon"><i data-lucide="clipboard-list"></i></span><span class="nav-label">Jobs</span></button>
+    <button class="nav-btn" id="nav-more" onclick="showPage('more','More')"><span class="nav-icon"><i data-lucide="menu"></i></span><span class="nav-label">More</span></button>
   </nav>
 </div>
 
@@ -583,6 +586,7 @@
 </div>
 
 <script src="js/vendor/html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script src="js/sheets.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/app.js"></script>
@@ -592,6 +596,11 @@
 <script src="js/billing.js"></script>
 <script src="js/delivery.js"></script>
 <script src="js/history.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>
 
 </body>
 </html>

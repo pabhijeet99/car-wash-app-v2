@@ -4,7 +4,7 @@
   "short_name": "Garage",
   "description": "Complete garage and auto service management app",
   "background_color": "#ffffff",
-  "theme_color": "#1565C0",
+  "theme_color": "#1E293B",
   "dir": "ltr",
   "display": "standalone",
   "orientation": "portrait",

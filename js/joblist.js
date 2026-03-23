@@ -13,7 +13,8 @@ var JOBLIST = {
 
     SHEETS.getJobCards(status).then(function(jobs) {
       if (!jobs || jobs.length === 0) {
-        container.innerHTML = '<div class="no-results"><div class="no-results-icon">📋</div><p>No job cards found</p></div>';
+        container.innerHTML = '<div class="no-results"><div class="no-results-icon"><i data-lucide="clipboard-list"></i></div><p>No job cards found</p></div>';
+        renderIcons();
         return;
       }
       var html = '';
@@ -22,11 +23,12 @@ var JOBLIST = {
         var priorityClass = 'priority-' + (j.priority || 'medium').toString().toLowerCase();
         html += '<div class="job-card-item" onclick="JOBLIST.openDetail(\'' + esc(j.jobCardNumber) + '\')">' +
           '<div class="jc-top"><span class="jc-number">' + esc(j.jobCardNumber) + '</span><span class="status-badge ' + statusClass + '">' + esc(j.status) + '</span></div>' +
-          '<div class="jc-info">👤 ' + esc(j.customerName) + ' &bull; 🚗 ' + esc(j.vehicleNumber) + '</div>' +
-          '<div class="jc-info">🔧 ' + esc(j.serviceType) + ' &bull; <span class="' + priorityClass + '">' + esc(j.priority) + '</span></div>' +
+          '<div class="jc-info"><i data-lucide="user" class="inline-icon"></i> ' + esc(j.customerName) + ' &bull; <i data-lucide="car" class="inline-icon"></i> ' + esc(j.vehicleNumber) + '</div>' +
+          '<div class="jc-info"><i data-lucide="wrench" class="inline-icon"></i> ' + esc(j.serviceType) + ' &bull; <span class="' + priorityClass + '">' + esc(j.priority) + '</span></div>' +
           '<div class="jc-date">' + esc(j.dateTimeIn) + '</div></div>';
       });
       container.innerHTML = html;
+      renderIcons();
     }).catch(function(err) {
       container.innerHTML = '<div class="no-results"><p>' + esc(err.message) + '</p></div>';
     });
@@ -57,12 +59,12 @@ var JOBLIST = {
         '<div class="detail-meta">' + esc(jc.dateTimeIn) + ' &bull; ' + esc(jc.serviceType) + ' &bull; ' + esc(jc.priority) + '</div></div>';
 
       // Customer
-      html += '<div class="detail-section"><div class="detail-title">👤 Customer</div>' +
+      html += '<div class="detail-section"><div class="detail-title"><i data-lucide="user" class="detail-icon"></i> Customer</div>' +
         '<div class="detail-row">' + esc(c.name || '') + ' &bull; ' + esc(c.mobile || '') + '</div>' +
         (c.address ? '<div class="detail-row">' + esc(c.address) + ', ' + esc(c.city || '') + '</div>' : '') + '</div>';
 
       // Vehicle
-      html += '<div class="detail-section"><div class="detail-title">🚗 Vehicle</div>' +
+      html += '<div class="detail-section"><div class="detail-title"><i data-lucide="car" class="detail-icon"></i> Vehicle</div>' +
         '<div class="detail-row">' + esc(v.vehicleNumber || '') + ' - ' + esc(v.brand || '') + ' ' + esc(v.model || '') + ' ' + esc(v.variant || '') + '</div>' +
         '<div class="detail-row">' + esc(v.fuelType || '') + ' &bull; ' + esc(v.year || '') + ' &bull; ' + esc(v.color || '') +
         (v.odometer ? ' &bull; ' + v.odometer + ' km' : '') + '</div></div>';
@@ -76,7 +78,7 @@ var JOBLIST = {
 
       // Inspection
       if (data.inspection && data.inspection.length > 0) {
-        html += '<div class="detail-section"><div class="detail-title">🔍 Inspection</div>';
+        html += '<div class="detail-section"><div class="detail-title"><i data-lucide="search-check" class="detail-icon"></i> Inspection</div>';
         data.inspection.forEach(function(ins) {
           var badge = ins.status === 'OK' ? 'insp-ok' : (ins.status === 'NeedsRepair' ? 'insp-repair' : 'insp-replace');
           html += '<div class="detail-row"><span class="insp-badge ' + badge + '">' + esc(ins.status) + '</span> ' + esc(ins.item) +
@@ -126,7 +128,7 @@ var JOBLIST = {
       // Delivery
       if (jc.status !== 'Delivered') {
         html += '<div class="detail-section">' +
-          '<button class="btn-primary" style="background:linear-gradient(135deg,#43A047,#2E7D32)" onclick="showPage(\'delivery\',\'Delivery\')">&#128666; Complete Delivery</button>' +
+          '<button class="btn-primary btn-success" onclick="showPage(\'delivery\',\'Delivery\')">&#10003; Complete Delivery</button>' +
           '</div>';
       } else {
         html += '<div class="detail-section"><div class="detail-title">&#128666; Delivered</div>' +
@@ -147,6 +149,7 @@ var JOBLIST = {
       }
 
       container.innerHTML = html;
+      renderIcons();
     }).catch(function(err) {
       container.innerHTML = '<div class="no-results"><p>Error: ' + esc(err.message) + '</p></div>';
     });

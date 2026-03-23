@@ -8,6 +8,10 @@
 // =============================================
 var _toastTimer = null;
 
+function renderIcons() {
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 function showToast(msg, type) {
   type = type || 'success';
   var el = document.getElementById('toast');
@@ -305,7 +309,7 @@ function loadDashboard() {
   SHEETS.getJobCards('all').then(function(jobs) {
     var container = document.getElementById('dashboard-recent-jobs');
     if (!jobs || jobs.length === 0) {
-      container.innerHTML = '<p style="color:#999;text-align:center;font-size:13px;padding:12px">No job cards yet. Tap New Job to create one.</p>';
+      container.innerHTML = '<p style="color:var(--text-muted);text-align:center;font-size:13px;padding:12px">No job cards yet. Tap New Job to create one.</p>';
       return;
     }
     var recent = jobs.slice(0, 5); // show last 5
@@ -319,8 +323,9 @@ function loadDashboard() {
       '</div>';
     });
     container.innerHTML = html;
+    renderIcons();
   }).catch(function() {
-    document.getElementById('dashboard-recent-jobs').innerHTML = '<p style="color:#999;text-align:center;font-size:13px">Could not load jobs</p>';
+    document.getElementById('dashboard-recent-jobs').innerHTML = '<p style="color:var(--text-muted);text-align:center;font-size:13px">Could not load jobs</p>';
   });
 }
 
@@ -349,7 +354,8 @@ async function doSearch() {
   try {
     var results = await SHEETS.search(query, searchType);
     if (results.length === 0) {
-      resultsDiv.innerHTML = '<div class="no-results"><div class="no-results-icon">🔍</div><p>No records found</p></div>';
+      resultsDiv.innerHTML = '<div class="no-results"><div class="no-results-icon"><i data-lucide="search"></i></div><p>No records found</p></div>';
+      renderIcons();
       return;
     }
     renderSearchResults(results, resultsDiv);
@@ -365,15 +371,16 @@ function renderSearchResults(results, container) {
       var statusClass = 'status-' + (r.status || 'open').toString().toLowerCase();
       html += '<div class="job-card-item" onclick="JOBLIST.openDetail(\'' + esc(r.jobCardNumber) + '\')">' +
         '<div class="jc-top"><span class="jc-number">' + esc(r.jobCardNumber) + '</span><span class="status-badge ' + statusClass + '">' + esc(r.status) + '</span></div>' +
-        '<div class="jc-info">👤 ' + esc(r.customerName) + ' &bull; 🚗 ' + esc(r.vehicleNumber) + '</div>' +
-        '<div class="jc-info">🔧 ' + esc(r.serviceType) + ' &bull; ' + esc(r.date) + '</div></div>';
+        '<div class="jc-info"><i data-lucide="user" class="inline-icon"></i> ' + esc(r.customerName) + ' &bull; <i data-lucide="car" class="inline-icon"></i> ' + esc(r.vehicleNumber) + '</div>' +
+        '<div class="jc-info"><i data-lucide="wrench" class="inline-icon"></i> ' + esc(r.serviceType) + ' &bull; ' + esc(r.date) + '</div></div>';
     } else {
       html += '<div class="visit-card"><div class="visit-top-row"><span class="visit-date">' + esc(r.date) + '</span><span class="visit-amount">\u20B9' + esc(r.amount) + '</span></div>' +
-        '<div class="visit-info-row"><span class="info-icon">👤</span><span>' + esc(r.customerName) + '</span></div>' +
-        '<div class="visit-info-row"><span class="info-icon">🚗</span><span>' + esc(r.vehicleNumber) + ' ' + esc(r.vehicleModel) + '</span></div></div>';
+        '<div class="visit-info-row"><span class="info-icon"><i data-lucide="user"></i></span><span>' + esc(r.customerName) + '</span></div>' +
+        '<div class="visit-info-row"><span class="info-icon"><i data-lucide="car"></i></span><span>' + esc(r.vehicleNumber) + ' ' + esc(r.vehicleModel) + '</span></div></div>';
     }
   });
   container.innerHTML = html;
+  renderIcons();
 }
 
 document.getElementById('searchQuery').addEventListener('keypress', function(e) { if (e.key === 'Enter') doSearch(); });
