@@ -47,6 +47,11 @@ var PARTS = {
   // Lookup barcode in PartsMaster and auto-fill name + MRP
   lookupBarcode: async function(barcode) {
     if (!barcode) return;
+    var resultDiv = document.getElementById('scan-lookup-result');
+    if (resultDiv) {
+      resultDiv.innerHTML = '<div class="inline-loading"><div class="spinner" style="margin:0 auto 8px"></div>Looking up part...</div>';
+      resultDiv.hidden = false;
+    }
     try {
       var result = await SHEETS.lookupPart(barcode);
       if (result && result.found) {
@@ -55,12 +60,29 @@ var PARTS = {
         if (result.brand) {
           document.getElementById('part-supplier').value = result.brand || '';
         }
+        // Show found result card with name and MRP
+        if (resultDiv) {
+          resultDiv.innerHTML = '<div class="lookup-found" style="display:flex;flex-direction:column;gap:4px">' +
+            '<div style="font-weight:700;font-size:15px"><i data-lucide="check-circle" class="inline-icon" style="color:var(--success)"></i> Part Found</div>' +
+            '<div style="font-size:14px"><strong>Name:</strong> ' + esc(result.partName || '') + '</div>' +
+            '<div style="font-size:14px"><strong>MRP:</strong> \u20B9' + esc(String(result.mrp || '0')) + '</div>' +
+            (result.brand ? '<div style="font-size:13px;color:var(--text-label)"><strong>Brand:</strong> ' + esc(result.brand) + '</div>' : '') +
+            '</div>';
+          renderIcons();
+        }
         showToast('Part found: ' + result.partName, 'success');
       } else {
+        if (resultDiv) {
+          resultDiv.innerHTML = '<div class="lookup-notfound"><i data-lucide="info" class="inline-icon"></i> New part - fill details manually</div>';
+          renderIcons();
+        }
         showToast('New part - fill details manually', 'info');
       }
     } catch(e) {
-      // Silent fail - user can fill manually
+      if (resultDiv) {
+        resultDiv.innerHTML = '<div class="lookup-notfound"><i data-lucide="info" class="inline-icon"></i> Could not look up part. Fill details manually.</div>';
+        renderIcons();
+      }
     }
   },
 
@@ -88,6 +110,8 @@ var PARTS = {
       document.getElementById('part-price').value = '';
       document.getElementById('part-supplier').value = '';
       document.getElementById('part-warranty').value = '';
+      var scanResult = document.getElementById('scan-lookup-result');
+      if (scanResult) { scanResult.innerHTML = ''; scanResult.hidden = true; }
 
       goBack();
       setTimeout(function() { JOBLIST.openDetail(JOBLIST.currentJobCard); }, 500);
