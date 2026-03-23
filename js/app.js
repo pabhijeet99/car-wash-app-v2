@@ -464,7 +464,42 @@ function updateApp() {
 var vehInput = document.getElementById('jc-veh-number');
 if (vehInput) vehInput.addEventListener('input', function() { var p = this.selectionStart; this.value = this.value.toUpperCase(); this.setSelectionRange(p, p); });
 
-// Service worker
+// =============================================
+// SERVICE WORKER + UPDATE DETECTION
+// =============================================
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(function() {});
+  navigator.serviceWorker.register('sw.js').then(function(registration) {
+    // Check for updates on every page load
+    registration.update();
+
+    // Listen for new service worker installing
+    registration.addEventListener('updatefound', function() {
+      var newWorker = registration.installing;
+      if (newWorker) {
+        newWorker.addEventListener('statechange', function() {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // New version installed but waiting — show update banner
+            showUpdateBanner();
+          }
+        });
+      }
+    });
+  }).catch(function() {});
+
+  // Listen for messages from SW (e.g. SW_UPDATED after activate)
+  navigator.serviceWorker.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'SW_UPDATED') {
+      showUpdateBanner();
+    }
+  });
+
+  // Detect when a new SW takes control (another tab triggered the update)
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    showUpdateBanner();
+  });
+}
+
+function showUpdateBanner() {
+  var banner = document.getElementById('update-banner');
+  if (banner) banner.hidden = false;
 }

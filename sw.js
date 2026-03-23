@@ -1,6 +1,6 @@
 // Garage Manager - Service Worker (no external dependencies)
 
-const CACHE_NAME = 'garage-v8';
+const CACHE_NAME = 'garage-v9';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -21,7 +21,7 @@ const APP_ASSETS = [
   './icons/icon-512x512.png'
 ];
 
-// Install - cache all core app files
+// Install - cache all core app files, skip waiting to activate immediately
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
@@ -31,7 +31,7 @@ self.addEventListener('install', function(event) {
   self.skipWaiting();
 });
 
-// Activate - clear old caches
+// Activate - clear old caches and notify all clients that an update is ready
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(keys) {
@@ -39,6 +39,13 @@ self.addEventListener('activate', function(event) {
         keys.filter(function(key) { return key !== CACHE_NAME; })
             .map(function(key) { return caches.delete(key); })
       );
+    }).then(function() {
+      // Notify all open tabs/windows that the app has been updated
+      return self.clients.matchAll({ type: 'window' });
+    }).then(function(clients) {
+      clients.forEach(function(client) {
+        client.postMessage({ type: 'SW_UPDATED', version: CACHE_NAME });
+      });
     })
   );
   self.clients.claim();
@@ -50,6 +57,13 @@ self.addEventListener('fetch', function(event) {
 
   // Never cache Google Apps Script API calls
   if (url.indexOf('script.google.com') !== -1) {
+    return;
+  }
+
+  // Never cache external CDN resources (fonts, icons)
+  if (url.indexOf('fonts.googleapis.com') !== -1 ||
+      url.indexOf('fonts.gstatic.com') !== -1 ||
+      url.indexOf('unpkg.com') !== -1) {
     return;
   }
 

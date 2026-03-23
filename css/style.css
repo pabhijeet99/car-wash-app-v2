@@ -791,6 +791,59 @@ html, body {
 }
 .more-icon [data-lucide] { width: 20px; height: 20px; stroke-width: 1.75; }
 
+/* UPDATE BANNER */
+.update-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: var(--accent);
+  color: white;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  animation: slideBannerDown 0.3s ease-out;
+}
+.update-banner[hidden] { display: none; }
+@keyframes slideBannerDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+.update-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 480px;
+  margin: 0 auto;
+  gap: 12px;
+}
+.update-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+.update-banner-text strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+.update-banner-btn {
+  background: white;
+  color: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+.update-banner-btn:active {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
 /* DESKTOP */
 @media (min-width: 500px) {
   #app { box-shadow: 0 0 40px rgba(0,0,0,0.15); border-radius: 20px; margin: 20px auto; max-height: calc(100vh - 40px); overflow: hidden; }
