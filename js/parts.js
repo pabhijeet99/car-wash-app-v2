@@ -61,12 +61,14 @@ var PARTS = {
           document.getElementById('part-supplier').value = result.brand || '';
         }
         // Show found result card with name and MRP
+        var sourceLabel = result.source === 'online' ? ' (fetched online)' : '';
         if (resultDiv) {
           resultDiv.innerHTML = '<div class="lookup-found" style="display:flex;flex-direction:column;gap:4px">' +
-            '<div style="font-weight:700;font-size:15px"><i data-lucide="check-circle" class="inline-icon" style="color:var(--success)"></i> Part Found</div>' +
+            '<div style="font-weight:700;font-size:15px"><i data-lucide="check-circle" class="inline-icon" style="color:var(--success)"></i> Part Found' + sourceLabel + '</div>' +
             '<div style="font-size:14px"><strong>Name:</strong> ' + esc(result.partName || '') + '</div>' +
-            '<div style="font-size:14px"><strong>MRP:</strong> \u20B9' + esc(String(result.mrp || '0')) + '</div>' +
+            (result.mrp ? '<div style="font-size:14px"><strong>MRP:</strong> \u20B9' + esc(String(result.mrp)) + '</div>' : '') +
             (result.brand ? '<div style="font-size:13px;color:var(--text-label)"><strong>Brand:</strong> ' + esc(result.brand) + '</div>' : '') +
+            (result.category ? '<div style="font-size:12px;color:var(--text-muted)"><strong>Category:</strong> ' + esc(result.category) + '</div>' : '') +
             '</div>';
           renderIcons();
         }

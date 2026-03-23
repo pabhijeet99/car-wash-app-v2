@@ -929,28 +929,108 @@ function _getSubfolder(ss, sheetId, folderKey) {
 }
 
 // =============================================
-// LOOKUP PART BY BARCODE (from PartsMaster)
+// LOOKUP PART BY BARCODE (Online first, cache in PartsMaster)
 // =============================================
 function lookupPart(params) {
-  var ss = SpreadsheetApp.openById(params.sheetId);
-  var pm = ss.getSheetByName('PartsMaster');
-  if (!pm || pm.getLastRow() <= 1) return { found: false };
-
   var barcode = (params.barcode || '').trim();
   if (!barcode) return { found: false };
 
-  var data = pm.getDataRange().getValues();
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][0].toString().trim() === barcode) {
-      return {
-        found: true,
-        partName: data[i][1],
-        brand: data[i][2],
-        mrp: data[i][3],
-        category: data[i][4]
-      };
+  // Always try online lookup first
+  try {
+    var onlineResult = _lookupBarcodeOnline(barcode);
+    if (onlineResult && onlineResult.found) {
+      // Cache to PartsMaster for offline/faster future lookups
+      try {
+        var ss = SpreadsheetApp.openById(params.sheetId);
+        var pm = ss.getSheetByName('PartsMaster');
+        if (!pm) {
+          pm = _getOrCreateSheet(ss, 'PartsMaster',
+            ['Barcode','PartName','Brand','MRP','Category'], [160,200,140,100,140]);
+        }
+        // Check if already cached
+        var exists = false;
+        if (pm.getLastRow() > 1) {
+          var data = pm.getDataRange().getValues();
+          for (var i = 1; i < data.length; i++) {
+            if (data[i][0].toString().trim() === barcode) { exists = true; break; }
+          }
+        }
+        if (!exists) {
+          pm.appendRow([barcode, onlineResult.partName, onlineResult.brand, onlineResult.mrp || '', onlineResult.category || '']);
+        }
+      } catch(e) {}
+      return onlineResult;
     }
+  } catch(e) {
+    // Online lookup failed — fall back to local PartsMaster
   }
+
+  // Fallback: check local PartsMaster (works offline or if online API is down)
+  try {
+    var ss2 = SpreadsheetApp.openById(params.sheetId);
+    var pm2 = ss2.getSheetByName('PartsMaster');
+    if (pm2 && pm2.getLastRow() > 1) {
+      var localData = pm2.getDataRange().getValues();
+      for (var j = 1; j < localData.length; j++) {
+        if (localData[j][0].toString().trim() === barcode) {
+          return {
+            found: true, source: 'local',
+            partName: localData[j][1], brand: localData[j][2],
+            mrp: localData[j][3], category: localData[j][4]
+          };
+        }
+      }
+    }
+  } catch(e) {}
+
+  return { found: false };
+}
+
+// Try multiple free barcode APIs
+function _lookupBarcodeOnline(barcode) {
+  // API 1: UPC Item DB (general products)
+  try {
+    var response = UrlFetchApp.fetch('https://api.upcitemdb.com/prod/trial/lookup?upc=' + barcode, {
+      muteHttpExceptions: true,
+      headers: { 'Accept': 'application/json' }
+    });
+    if (response.getResponseCode() === 200) {
+      var json = JSON.parse(response.getContentText());
+      if (json.items && json.items.length > 0) {
+        var item = json.items[0];
+        return {
+          found: true,
+          source: 'online',
+          partName: item.title || '',
+          brand: item.brand || '',
+          mrp: item.highest_recorded_price || item.lowest_recorded_price || '',
+          category: item.category || ''
+        };
+      }
+    }
+  } catch(e) {}
+
+  // API 2: Open Food Facts (food & general products)
+  try {
+    var response2 = UrlFetchApp.fetch('https://world.openfoodfacts.org/api/v2/product/' + barcode + '.json', {
+      muteHttpExceptions: true
+    });
+    if (response2.getResponseCode() === 200) {
+      var json2 = JSON.parse(response2.getContentText());
+      if (json2.status === 1 && json2.product) {
+        var p = json2.product;
+        return {
+          found: true,
+          source: 'online',
+          partName: p.product_name || p.generic_name || '',
+          brand: p.brands || '',
+          mrp: '',
+          category: p.categories || ''
+        };
+      }
+    }
+  } catch(e) {}
+
   return { found: false };
 }
 
