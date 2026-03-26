@@ -844,6 +844,80 @@ html, body {
   opacity: 0.9;
 }
 
+/* =============================================
+   SCAN RESULT CARDS
+   ============================================= */
+.scan-loading-card {
+  text-align: center;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.scan-result-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-top: 8px;
+}
+.scan-result-card.found {
+  border-color: var(--success);
+  border-width: 1.5px;
+}
+.scan-result-card.notfound {
+  border-color: var(--warning);
+  padding: 16px;
+}
+.scan-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--success-bg);
+  border-bottom: 1px solid #dcfce7;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.scan-result-body {
+  padding: 4px 0;
+}
+.scan-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--primary-100);
+}
+.scan-result-row:last-child {
+  border-bottom: none;
+}
+.scan-result-row.main {
+  background: var(--primary-50);
+}
+.scan-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+.scan-value {
+  font-size: 13px;
+  color: var(--text-main);
+  font-weight: 600;
+  text-align: right;
+}
+.scan-value.price {
+  color: var(--success);
+  font-size: 15px;
+  font-weight: 700;
+}
+.scan-result-row.main .scan-value {
+  font-size: 14px;
+  color: var(--accent-dark);
+}
+
 /* DESKTOP */
 @media (min-width: 500px) {
   #app { box-shadow: 0 0 40px rgba(0,0,0,0.15); border-radius: 20px; margin: 20px auto; max-height: calc(100vh - 40px); overflow: hidden; }

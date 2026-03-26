@@ -929,64 +929,162 @@ function _getSubfolder(ss, sheetId, folderKey) {
 }
 
 // =============================================
-// LOOKUP PART BY BARCODE (Online first, cache in PartsMaster)
+// LOOKUP PART BY BARCODE
+// Priority: 1. Local PartsMaster  2. Free APIs  3. Gemini AI
 // =============================================
+var GEMINI_API_KEY = 'AIzaSyDWflTx8lNsiz8-hm3ebLWQcsKLWYfa_RQ';
+
 function lookupPart(params) {
   var barcode = (params.barcode || '').trim();
   if (!barcode) return { found: false };
 
-  // Always try online lookup first
+  // 1. Check local PartsMaster FIRST (fastest, no API call)
   try {
-    var onlineResult = _lookupBarcodeOnline(barcode);
-    if (onlineResult && onlineResult.found) {
-      // Cache to PartsMaster for offline/faster future lookups
-      try {
-        var ss = SpreadsheetApp.openById(params.sheetId);
-        var pm = ss.getSheetByName('PartsMaster');
-        if (!pm) {
-          pm = _getOrCreateSheet(ss, 'PartsMaster',
-            ['Barcode','PartName','Brand','MRP','Category'], [160,200,140,100,140]);
-        }
-        // Check if already cached
-        var exists = false;
-        if (pm.getLastRow() > 1) {
-          var data = pm.getDataRange().getValues();
-          for (var i = 1; i < data.length; i++) {
-            if (data[i][0].toString().trim() === barcode) { exists = true; break; }
-          }
-        }
-        if (!exists) {
-          pm.appendRow([barcode, onlineResult.partName, onlineResult.brand, onlineResult.mrp || '', onlineResult.category || '']);
-        }
-      } catch(e) {}
-      return onlineResult;
-    }
-  } catch(e) {
-    // Online lookup failed — fall back to local PartsMaster
-  }
-
-  // Fallback: check local PartsMaster (works offline or if online API is down)
-  try {
-    var ss2 = SpreadsheetApp.openById(params.sheetId);
-    var pm2 = ss2.getSheetByName('PartsMaster');
-    if (pm2 && pm2.getLastRow() > 1) {
-      var localData = pm2.getDataRange().getValues();
+    var ss = SpreadsheetApp.openById(params.sheetId);
+    var pm = ss.getSheetByName('PartsMaster');
+    if (pm && pm.getLastRow() > 1) {
+      var localData = pm.getDataRange().getValues();
       for (var j = 1; j < localData.length; j++) {
         if (localData[j][0].toString().trim() === barcode) {
           return {
             found: true, source: 'local',
             partName: localData[j][1], brand: localData[j][2],
-            mrp: localData[j][3], category: localData[j][4]
+            mrp: localData[j][3], category: localData[j][4],
+            subCategory: localData[j][5] || '', specifications: localData[j][6] || '',
+            vehicleCompatibility: localData[j][7] || ''
           };
         }
       }
     }
   } catch(e) {}
 
+  // 2. Try free barcode APIs
+  try {
+    var onlineResult = _lookupBarcodeOnline(barcode);
+    if (onlineResult && onlineResult.found) {
+      _cacheToPartsMaster(params.sheetId, barcode, onlineResult);
+      return onlineResult;
+    }
+  } catch(e) {}
+
+  // 3. Try Gemini AI as last resort (works great for Indian products)
+  try {
+    var geminiResult = _lookupWithGemini(barcode);
+    if (geminiResult && geminiResult.found) {
+      _cacheToPartsMaster(params.sheetId, barcode, geminiResult);
+      return geminiResult;
+    }
+  } catch(e) {}
+
   return { found: false };
 }
 
+// =============================================
+// GEMINI AI LOOKUP - Identifies products by barcode
+// =============================================
+function _lookupWithGemini(barcode) {
+  if (!GEMINI_API_KEY) return { found: false };
+
+  var prompt = 'You are an expert product identifier for Indian markets. ' +
+    'Given this barcode/EAN number: ' + barcode + '\n\n' +
+    'Identify the product and return ONLY a valid JSON object (no markdown, no explanation):\n' +
+    '{\n' +
+    '  "part_name": "product name",\n' +
+    '  "brand": "brand name",\n' +
+    '  "category": "main category like Engine, Brake, Body Care, Lubricant, Electrical, Cleaning, etc",\n' +
+    '  "sub_category": "sub category",\n' +
+    '  "specifications": "size, weight, volume or other specs",\n' +
+    '  "mrp_inr": "numeric MRP in INR or empty string if unknown",\n' +
+    '  "vehicle_compatibility": "compatible vehicles or General",\n' +
+    '  "confidence": "High or Medium or Low"\n' +
+    '}\n\n' +
+    'If you cannot identify the product at all, return: {"part_name":"","confidence":"None"}\n' +
+    'Barcode prefix 890 = Indian product. Be accurate. Return ONLY the JSON.';
+
+  try {
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
+    var payload = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.1, maxOutputTokens: 500 }
+    };
+
+    var response = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+
+    if (response.getResponseCode() === 200) {
+      var json = JSON.parse(response.getContentText());
+      var text = json.candidates[0].content.parts[0].text || '';
+
+      // Clean markdown fences if present
+      text = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+      var parsed = JSON.parse(text);
+
+      if (parsed.confidence === 'None' || !parsed.part_name) return { found: false };
+
+      return {
+        found: true,
+        source: 'ai',
+        partName: parsed.part_name || '',
+        brand: parsed.brand || '',
+        mrp: parsed.mrp_inr || '',
+        category: parsed.category || '',
+        subCategory: parsed.sub_category || '',
+        specifications: parsed.specifications || '',
+        vehicleCompatibility: parsed.vehicle_compatibility || '',
+        confidence: parsed.confidence || 'Low'
+      };
+    }
+  } catch(e) {}
+
+  return { found: false };
+}
+
+// =============================================
+// Cache result to PartsMaster sheet
+// =============================================
+function _cacheToPartsMaster(sheetId, barcode, result) {
+  try {
+    var ss = SpreadsheetApp.openById(sheetId);
+    var pm = ss.getSheetByName('PartsMaster');
+    if (!pm) {
+      pm = _getOrCreateSheet(ss, 'PartsMaster',
+        ['Barcode','PartName','Brand','MRP','Category','SubCategory','Specifications','VehicleCompatibility'],
+        [160,200,140,100,140,140,200,200]);
+    }
+    // Ensure we have 8 columns (upgrade old 5-column PartsMaster)
+    var headers = pm.getRange(1, 1, 1, pm.getLastColumn()).getValues()[0];
+    if (headers.length < 8) {
+      var newHeaders = ['SubCategory','Specifications','VehicleCompatibility'];
+      for (var h = headers.length; h < 8; h++) {
+        pm.getRange(1, h + 1).setValue(newHeaders[h - 5] || '');
+      }
+    }
+    // Check if already exists
+    var exists = false;
+    if (pm.getLastRow() > 1) {
+      var data = pm.getDataRange().getValues();
+      for (var i = 1; i < data.length; i++) {
+        if (data[i][0].toString().trim() === barcode) { exists = true; break; }
+      }
+    }
+    if (!exists) {
+      pm.appendRow([
+        barcode, result.partName || '', result.brand || '', result.mrp || '',
+        result.category || '', result.subCategory || '', result.specifications || '',
+        result.vehicleCompatibility || ''
+      ]);
+    }
+  } catch(e) {}
+}
+
+// =============================================
 // Try multiple free barcode APIs
+// =============================================
 function _lookupBarcodeOnline(barcode) {
   // API 1: UPC Item DB (general products)
   try {
@@ -999,10 +1097,8 @@ function _lookupBarcodeOnline(barcode) {
       if (json.items && json.items.length > 0) {
         var item = json.items[0];
         return {
-          found: true,
-          source: 'online',
-          partName: item.title || '',
-          brand: item.brand || '',
+          found: true, source: 'online',
+          partName: item.title || '', brand: item.brand || '',
           mrp: item.highest_recorded_price || item.lowest_recorded_price || '',
           category: item.category || ''
         };
@@ -1020,12 +1116,9 @@ function _lookupBarcodeOnline(barcode) {
       if (json2.status === 1 && json2.product) {
         var p = json2.product;
         return {
-          found: true,
-          source: 'online',
-          partName: p.product_name || p.generic_name || '',
-          brand: p.brands || '',
-          mrp: '',
-          category: p.categories || ''
+          found: true, source: 'online',
+          partName: p.product_name || p.generic_name || '', brand: p.brands || '',
+          mrp: '', category: p.categories || ''
         };
       }
     }
