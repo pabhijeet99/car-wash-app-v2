@@ -66,6 +66,7 @@ function doPost(e) {
     else if (action === 'addParts')      result = addParts(params);
     else if (action === 'createBilling') result = createBilling(params);
     else if (action === 'updateDelivery') result = updateDelivery(params);
+    else if (action === 'lookupPart')    result = lookupPart(params);
     else result = { error: 'Unknown POST action: ' + action };
   } catch (err) { result = { error: err.toString() }; }
   return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
@@ -936,6 +937,7 @@ var GEMINI_API_KEY = 'AIzaSyDWflTx8lNsiz8-hm3ebLWQcsKLWYfa_RQ';
 
 function lookupPart(params) {
   var barcode = (params.barcode || '').trim();
+  var photoData = params.photoData || null; // base64 JPEG from camera
   if (!barcode) return { found: false };
 
   // 1. Check local PartsMaster FIRST (fastest, no API call)
@@ -967,9 +969,9 @@ function lookupPart(params) {
     }
   } catch(e) {}
 
-  // 3. Try Gemini AI as last resort (works great for Indian products)
+  // 3. Try Gemini AI — with photo (Vision OCR) or without
   try {
-    var geminiResult = _lookupWithGemini(barcode);
+    var geminiResult = _lookupWithGemini(barcode, photoData);
     if (geminiResult && geminiResult.found) {
       _cacheToPartsMaster(params.sheetId, barcode, geminiResult);
       return geminiResult;
@@ -980,31 +982,64 @@ function lookupPart(params) {
 }
 
 // =============================================
-// GEMINI AI LOOKUP - Identifies products by barcode
+// GEMINI AI LOOKUP - Vision OCR + Barcode identification
+// If photo is provided, Gemini reads the product label (OCR)
+// If no photo, Gemini tries to identify by barcode number alone
 // =============================================
-function _lookupWithGemini(barcode) {
+function _lookupWithGemini(barcode, photoData) {
   if (!GEMINI_API_KEY) return { found: false };
 
-  var prompt = 'You are an expert product identifier for Indian markets. ' +
-    'Given this barcode/EAN number: ' + barcode + '\n\n' +
-    'Identify the product and return ONLY a valid JSON object (no markdown, no explanation):\n' +
-    '{\n' +
+  var jsonFormat = '{\n' +
     '  "part_name": "product name",\n' +
     '  "brand": "brand name",\n' +
     '  "category": "main category like Engine, Brake, Body Care, Lubricant, Electrical, Cleaning, etc",\n' +
     '  "sub_category": "sub category",\n' +
     '  "specifications": "size, weight, volume or other specs",\n' +
-    '  "mrp_inr": "numeric MRP in INR or empty string if unknown",\n' +
+    '  "mrp_inr": "numeric MRP in INR only (no currency symbol) or empty string if unknown",\n' +
     '  "vehicle_compatibility": "compatible vehicles or General",\n' +
     '  "confidence": "High or Medium or Low"\n' +
-    '}\n\n' +
-    'If you cannot identify the product at all, return: {"part_name":"","confidence":"None"}\n' +
-    'Barcode prefix 890 = Indian product. Be accurate. Return ONLY the JSON.';
+    '}';
+
+  var parts = [];
+
+  if (photoData) {
+    // VISION MODE: Send photo + barcode for OCR label reading
+    parts.push({
+      text: 'You are an expert product identifier for Indian automotive and general markets.\n\n' +
+        'I have scanned a product with barcode: ' + barcode + '\n' +
+        'I am also providing a photo of the product/label taken from the camera.\n\n' +
+        'INSTRUCTIONS:\n' +
+        '1. READ the product label text from the image (OCR) - look for product name, brand, MRP, specifications\n' +
+        '2. Use the barcode number as additional reference\n' +
+        '3. The image text is the PRIMARY source of truth. Trust what you see on the label.\n' +
+        '4. Look carefully for MRP printed on the label (e.g., "MRP Rs.XXX", "MRP: XXX", "M.R.P. Rs XXX")\n' +
+        '5. Extract the product name exactly as shown on the label\n\n' +
+        'Return ONLY a valid JSON object (no markdown, no explanation):\n' + jsonFormat + '\n\n' +
+        'If you cannot read the label at all, return: {"part_name":"","confidence":"None"}\n' +
+        'Return ONLY the JSON, nothing else.'
+    });
+    parts.push({
+      inlineData: {
+        mimeType: 'image/jpeg',
+        data: photoData
+      }
+    });
+  } else {
+    // TEXT-ONLY MODE: Identify by barcode number alone
+    parts.push({
+      text: 'You are an expert product identifier for Indian markets. ' +
+        'Given this barcode/EAN number: ' + barcode + '\n\n' +
+        'Identify the product and return ONLY a valid JSON object (no markdown, no explanation):\n' +
+        jsonFormat + '\n\n' +
+        'If you cannot identify the product at all, return: {"part_name":"","confidence":"None"}\n' +
+        'Barcode prefix 890 = Indian product. Be accurate. Return ONLY the JSON.'
+    });
+  }
 
   try {
     var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
     var payload = {
-      contents: [{ parts: [{ text: prompt }] }],
+      contents: [{ parts: parts }],
       generationConfig: { temperature: 0.1, maxOutputTokens: 500 }
     };
 
@@ -1028,7 +1063,7 @@ function _lookupWithGemini(barcode) {
 
       return {
         found: true,
-        source: 'ai',
+        source: photoData ? 'ai-ocr' : 'ai',
         partName: parsed.part_name || '',
         brand: parsed.brand || '',
         mrp: parsed.mrp_inr || '',

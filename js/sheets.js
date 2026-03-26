@@ -198,12 +198,23 @@ const SHEETS = {
     return await this._callScript(params);
   },
 
-  // ---- LOOKUP PART by barcode (from PartsMaster) ----
-  async lookupPart(barcode) {
-    var params = new URLSearchParams({
-      action: 'lookupPart', sheetId: this.getSheetId(), barcode: barcode
-    });
-    return await this._callScript(params);
+  // ---- LOOKUP PART by barcode + optional photo for OCR ----
+  async lookupPart(barcode, photoBase64) {
+    if (photoBase64) {
+      // POST with photo for Gemini Vision OCR
+      return await this._postScript({
+        action: 'lookupPart',
+        sheetId: this.getSheetId(),
+        barcode: barcode,
+        photoData: photoBase64
+      });
+    } else {
+      // GET without photo (manual barcode entry)
+      var params = new URLSearchParams({
+        action: 'lookupPart', sheetId: this.getSheetId(), barcode: barcode
+      });
+      return await this._callScript(params);
+    }
   },
 
   // ---- Legacy: ADD RECORD to Visits tab ----

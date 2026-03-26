@@ -1,9 +1,10 @@
 // =============================================
-// GARAGE MANAGER - Parts & QR Scanner
+// GARAGE MANAGER - Parts & QR Scanner + OCR
 // =============================================
 
 var PARTS = {
   scanner: null,
+  videoElement: null,
 
   openScanner: function() {
     showPage('qr-scanner', 'Scan Code');
@@ -15,12 +16,16 @@ var PARTS = {
           { facingMode: 'environment' },
           { fps: 10, qrbox: { width: 250, height: 250 } },
           function(decodedText) {
+            // Capture a photo frame from the camera before closing
+            var photoData = self.captureFrame();
+
             // Auto-fill part number
             document.getElementById('part-number').value = decodedText;
             showToast('Scanned: ' + decodedText, 'success');
             self.closeScanner();
-            // Auto-lookup from PartsMaster → Free APIs → Gemini AI
-            self.lookupBarcode(decodedText);
+
+            // Lookup with barcode + photo (OCR)
+            self.lookupBarcode(decodedText, photoData);
           },
           function() {} // ignore scan errors
         ).catch(function(err) {
@@ -34,6 +39,28 @@ var PARTS = {
     }, 300);
   },
 
+  // Capture a frame from the video element as base64 JPEG
+  captureFrame: function() {
+    try {
+      var video = document.querySelector('#qr-reader video');
+      if (!video || !video.videoWidth) return null;
+
+      var canvas = document.createElement('canvas');
+      // Use reasonable resolution for OCR (max 800px wide)
+      var scale = Math.min(1, 800 / video.videoWidth);
+      canvas.width = video.videoWidth * scale;
+      canvas.height = video.videoHeight * scale;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Return base64 JPEG (no data: prefix, just the base64 string)
+      var dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      return dataUrl.split(',')[1]; // remove "data:image/jpeg;base64,"
+    } catch(e) {
+      return null;
+    }
+  },
+
   closeScanner: function() {
     if (this.scanner) {
       try {
@@ -44,21 +71,23 @@ var PARTS = {
     goBack();
   },
 
-  // Lookup barcode: Local PartsMaster → Free APIs → Gemini AI
-  lookupBarcode: async function(barcode) {
+  // Lookup barcode: Local PartsMaster → Free APIs → Gemini AI (with OCR photo)
+  lookupBarcode: async function(barcode, photoBase64) {
     if (!barcode) return;
     var resultDiv = document.getElementById('scan-lookup-result');
     if (resultDiv) {
       resultDiv.innerHTML =
         '<div class="scan-loading-card">' +
           '<div class="spinner" style="margin:0 auto 10px"></div>' +
-          '<div style="font-size:13px;color:var(--text-label)">Looking up barcode...</div>' +
-          '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">Checking Local DB → Online APIs → AI</div>' +
+          '<div style="font-size:13px;color:var(--text-label)">Identifying product...</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">' +
+            (photoBase64 ? 'Reading label + checking databases + AI...' : 'Checking Local DB → Online APIs → AI...') +
+          '</div>' +
         '</div>';
       resultDiv.hidden = false;
     }
     try {
-      var result = await SHEETS.lookupPart(barcode);
+      var result = await SHEETS.lookupPart(barcode, photoBase64);
       if (result && result.found) {
         // Auto-fill form fields
         document.getElementById('part-name').value = result.partName || '';
@@ -71,8 +100,9 @@ var PARTS = {
         var sourceIcon = '', sourceLabel = '';
         if (result.source === 'local') {
           sourceIcon = 'database'; sourceLabel = 'From your database';
-        } else if (result.source === 'ai') {
-          sourceIcon = 'sparkles'; sourceLabel = 'Identified by AI';
+        } else if (result.source === 'ai' || result.source === 'ai-ocr') {
+          sourceIcon = 'sparkles';
+          sourceLabel = result.source === 'ai-ocr' ? 'AI read the label' : 'Identified by AI';
         } else {
           sourceIcon = 'globe'; sourceLabel = 'Found online';
         }
@@ -81,7 +111,7 @@ var PARTS = {
         var confBadge = '';
         if (result.confidence) {
           var confColor = result.confidence === 'High' ? 'var(--success)' :
-                          result.confidence === 'Medium' ? 'var(--warning, #f59e0b)' : 'var(--error, #ef4444)';
+                          result.confidence === 'Medium' ? 'var(--warning, #f59e0b)' : 'var(--danger, #ef4444)';
           confBadge = '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;' +
             'background:' + confColor + '22;color:' + confColor + ';font-weight:600">' +
             result.confidence + ' confidence</span>';
@@ -159,7 +189,7 @@ var PARTS = {
                 '<span style="font-weight:700;font-size:14px">Part Not Found</span>' +
               '</div>' +
               '<div style="font-size:12px;color:var(--text-muted);line-height:1.5">' +
-                'Barcode <strong>' + esc(barcode) + '</strong> not found in any database.<br>' +
+                'Barcode <strong>' + esc(barcode) + '</strong> not recognized.<br>' +
                 'Fill the details manually below. It will be saved for future scans automatically.' +
               '</div>' +
             '</div>';
@@ -171,7 +201,7 @@ var PARTS = {
       if (resultDiv) {
         resultDiv.innerHTML =
           '<div class="scan-result-card notfound">' +
-            '<i data-lucide="wifi-off" style="color:var(--error);width:18px;height:18px"></i>' +
+            '<i data-lucide="wifi-off" style="color:var(--danger);width:18px;height:18px"></i>' +
             '<span style="font-size:13px;margin-left:8px">Lookup failed. Fill details manually.</span>' +
           '</div>';
         renderIcons();
